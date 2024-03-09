@@ -1,0 +1,16 @@
+#!/bin/bash
+
+comandos=$(ls --format=single-column ~/.utils/commands | cut -d_ -f1 | tr 'A-Z' 'a-z')
+lista=($comandos)
+parametro="$1"
+
+for elemento in "${lista[@]}"; do
+	if [ "$1" == "$elemento" ]; then
+		path=$(echo "$elemento" | tr 'a-z' 'A-Z')
+		cat ~/.utils/commands/${path}_COMMANDS.txt
+		exit 0
+	fi
+done
+
+echo "$comandos"
+

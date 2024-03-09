@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Author: Bruno Guimarães
+# Description: Creates a file with a common base structure for shell scripts
+# Version: 1.0
+# Last Updated: 08/03/2024 
+
+
+# Function to display script usage information
+usage() {
+    cat <<EOF
+$(basename $0) - Start a new file with a base common shell script code
+
+Description:
+    $(basename $0) is a script for creating scripts with some start boilerplate code that you may wanna have in every shell script
+
+Usage:
+    $(basename $0) [options] <file_name>
+
+Options:
+    -h, --help          Display this help message and exit
+
+Arguments:
+    <file_name>         The name of the file you'll be creating
+
+Examples:
+    $(basename $0) -h | --help              # Display help information
+    $(basename $0) my_file.sh               # Create a file called my_file.sh with start code
+EOF
+exit 0
+}
+
+# Parse command-line options
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h | --help)
+            usage
+            ;;
+        -*)
+            echo "Error: Unknown option: $1"
+            usage
+            ;;
+        *)
+            break
+            ;;
+    esac
+    shift
+done
+
+# Check if a filename is provided
+if [ $# -eq 0 ]; then
+    echo "Error: Missing filename. Use -h or --help for usage information."
+    exit 1
+fi
+
+# Get the filename from the command-line argument
+filename="$1"
+
+# Store the script code in a variable
+script_code=$(cat << 'SCRIPT'
+#!/bin/bash
+
+# Author: Bruno Guimarães
+# Description: Brief description of what the script does
+# Version: 1.0
+# Last Updated: Date
+
+
+# Function to display script usage information
+usage() {
+  cat <<EOF
+$(basename $0) - Manage virtual machine folders
+
+Description:
+    $(basename $0) is a script for managing virtual machine folders. It allows you to
+    create, delete, or list folders associated with virtual machines.
+
+Usage:
+    $(basename $0) [options] <action> <folder_name>
+
+Options:
+    -h, --help          Display this help message and exit
+    -c, --create        Create a new virtual machine folder
+
+Actions:
+    create              Create a new virtual machine folder
+    delete              Delete an existing virtual machine folder
+
+Arguments:
+    <action>            The action to perform. Must be one of: create, delete, list, rename, move.
+    <folder_name>       The name of the virtual machine folder to create, delete, or rename.
+
+Examples:
+    $(basename $0) --create my_folder       # Create a new virtual machine folder named "my_folder"
+    $(basename $0) --list                   # List all virtual machine folders
+EOF
+}
+
+# Parse command-line options
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h | --help)
+            usage
+            ;;
+        -a | --flag-a)
+            echo "Flag A is set"
+            # Handle Flag A logic here
+            ;;
+        -b | --flag-b)
+            echo "Flag B is set"
+            # Handle Flag B logic here
+            ;;
+        # Add more flags here
+        -*)
+            echo "Error: Unknown option: $1"
+            usage
+            ;;
+        *)
+            break
+            ;;
+    esac
+    shift
+done
+
+# Check if an argument is provided
+if [ $# -eq 0 ]; then
+    echo "Error: Missing argument. Use -h or --help for usage information."
+    exit 1
+fi
+
+# Get the argument from the command-line argument
+argument="$1"
+
+# Main script logic goes here
+# Example:
+echo "Hello, World!"
+
+# Exit with success status
+exit 0
+SCRIPT
+)
+
+# Echo the script code to a new file with the specified filename
+echo "$script_code" > "$filename"
+vim $filename

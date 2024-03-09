@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Check if an argument is provided
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 <source_file.c>"
+  exit 1
+fi
+
+# Extract file name without extension
+filename=$(basename "$1")
+filename_without_extension="${filename%.*}"
+
+# Build the C program
+set -xe
+cc -Wall -Wextra -pedantic -o "$filename_without_extension" "$1"
+./$filename_without_extension
