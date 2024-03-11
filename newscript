@@ -94,6 +94,7 @@ Examples:
     $(basename $0) --create my_folder       # Create a new virtual machine folder named "my_folder"
     $(basename $0) --list                   # List all virtual machine folders
 EOF
+exit 0
 }
 
 # Parse command-line options

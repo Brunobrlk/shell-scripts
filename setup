@@ -1,0 +1,5 @@
+echo "export PATH=\"\$PATH:$(pwd)\"" >> ~/.bashrc
+source ~/.bashrc
+
+# Scripts that are only executable with sudo
+sudo ln -s ./vmsfolder /usr/local/bin/vmsfolder
