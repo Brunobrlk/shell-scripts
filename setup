@@ -1,5 +1,8 @@
-echo "export PATH=\"\$PATH:$(pwd)\"" >> ~/.bashrc
-source ~/.bashrc
+USER_HOME="/home/$SUDO_USER"
+SCRIPT_PATH=$(dirname "$(realpath "$0")")
+
+echo "export PATH=\"\$PATH:$SCRIPT_PATH\"" >> "$USER_HOME/.bashrc"
+source "$USER_HOME/.bashrc"
 
 # Scripts that are only executable with sudo
-sudo ln -s ./vmsfolder /usr/local/bin/vmsfolder
+sudo ln -s "$SCRIPT_PATH/vmsfolder" /usr/local/bin/vmsfolder
