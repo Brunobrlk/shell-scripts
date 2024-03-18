@@ -1,11 +1,8 @@
 #!/bin/bash
 
 USER_HOME="$HOME"
-if [ "$EUID" -ne 0 ]; then
-  USER_HOME="/home/$SUDO_USER"
-fi
 
-# Go to the folder where the resources are
+# Check if the resources folder exist
 if [ ! -d "$USER_HOME/Downloads/Android-Studio-Versions" ]; then
   echo "Directory $USER_HOME/Downloads/Android-Studio-Versions does not exist."
   exit 1
@@ -15,7 +12,7 @@ fi
 mkdir -p "$USER_HOME/Android"
 
 # Iterate through all .tar.gz files in the current folder
-for file in "$USER_HOME/Backup/Android/*.tar.gz"; do
+for file in "$USER_HOME/Downloads/Android-Studio-Versions/*.tar.gz"; do
   # Extract the .tar.gz file to Android folder
   tar -zxvf "$file" -C $USER_HOME/Android
 
@@ -46,4 +43,7 @@ done
 chmod 755 "$USER_HOME/Desktop/android-studio-*"
 
 # Add emulators to your environment
-cp -r "$USER_HOME/Backup/Android/avd" "$USER_HOME/.android/"
+mv "$USER_HOME/Downloads/Android-Studio-Versions/avd" "$USER_HOME/.android/"
+
+# Clean up unused resources
+rm -rf "$USER_HOME/Downloads/Android-Studio-Versions"

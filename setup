@@ -1,4 +1,4 @@
-USER_HOME="/home/$SUDO_USER"
+USER_HOME="$HOME"
 SCRIPT_PATH=$(dirname "$(realpath "$0")")
 
 echo "export PATH=\"\$PATH:$SCRIPT_PATH\"" >> "$USER_HOME/.bashrc"
