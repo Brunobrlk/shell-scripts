@@ -1,5 +1,10 @@
-echo "export PATH=\"\$PATH:$(pwd)\"" >> ~/.bashrc
-source ~/.bashrc
+SCRIPT_PATH=$(dirname "$(realpath "$0")")
+
+ln -s "$SCRIPT_PATH/buildc" "$HOME/.local/bin/buildc"
+ln -s "$SCRIPT_PATH/cheatsheet" "$HOME/.local/bin/cheatsheet"
+ln -s "$SCRIPT_PATH/kvm_export_import" "$HOME/.local/bin/kvm_export_import"
+ln -s "$SCRIPT_PATH/newscript" "$HOME/.local/bin/newscript"
+ln -s "$SCRIPT_PATH/productinfo" "$HOME/.local/bin/productinfo"
 
 # Scripts that are only executable with sudo
-sudo ln -s ./vmsfolder /usr/local/bin/vmsfolder
+sudo ln -s "$SCRIPT_PATH/vmsfolder" /usr/local/bin/vmsfolder

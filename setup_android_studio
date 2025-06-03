@@ -1,12 +1,14 @@
 #!/bin/bash
 
+USER_HOME="/home/$SUDO_USER"
+
 # Create "Android" folder if doesn't exist
-mkdir -p ~/Android
+mkdir -p "$USER_HOME/Android"
 
 # Iterate through all .tar.gz files in the current folder
-for file in *.tar.gz; do
+for file in "$USER_HOME/Backup/Android/*.tar.gz"; do
   # Extract the .tar.gz file to Android folder
-  tar -zxvf "$file" -C $HOME/Android
+  tar -zxvf "$file" -C $USER_HOME/Android
 
   SED_CUT_VERSION='s/\(.*\)-.*2.*$/\1/'  
   SED_MINUS_TO_SPACES='s/-/ /g'
@@ -15,14 +17,14 @@ for file in *.tar.gz; do
   DIR=$(echo "$file%.tar.gz" | sed -e "$SED_CUT_VERSION")
   NAME=$(echo "$DIR" | sed -e "$SED_MINUS_TO_SPACES" -e "$SED_CAPITALIZE")
   echo $DIR
-  mv $HOME/Android/android-studio "$HOME/Android/$DIR"
-  cat <<EOF > "$HOME/Desktop/$DIR.desktop"
+  mv $USER_HOME/Android/android-studio "$USER_HOME/Android/$DIR"
+  cat <<EOF > "$USER_HOME/Desktop/$DIR.desktop"
   [Desktop Entry]
   Version=1.0
   Type=Application
   Name=Android Studio
-  Icon=$HOME/Android/$DIR/bin/studio.svg
-  Exec="$HOME/Android/$DIR/bin/studio.sh" %f
+  Icon=$USER_HOME/Android/$DIR/bin/studio.svg
+  Exec="$USER_HOME/Android/$DIR/bin/studio.sh" %f
   Comment=The Drive to Develop
   Categories=Development;IDE;
   Terminal=false
@@ -31,7 +33,8 @@ for file in *.tar.gz; do
   Name[en_US]=$NAME
 EOF
 done
-chmod 755 $HOME/Desktop/android-studio-*
+
+chmod 755 "$USER_HOME/Desktop/android-studio-*"
 
 # Add emulators to your environment
-cp -r avd $HOME/.android/
+cp -r "$USER_HOME/Backup/Android/avd" "$USER_HOME/.android/"

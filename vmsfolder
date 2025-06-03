@@ -52,7 +52,7 @@ ExecStart=$path_to_script $source_folder $destination_folder
 WantedBy=multi-user.target
 EOF
 
-echo "$(whoami) ALL=(ALL) NOPASSWD: $path_to_script $source_folder $destination_folder" >> /etc/sudoers
+echo "$SUDO_USER ALL=(ALL) NOPASSWD: $path_to_script $source_folder $destination_folder" >> /etc/sudoers
 
 systemctl daemon-reload
 
