@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Author: Bruno Guimarães
+# Description: Brief description of what the script does
+# Version: 1.0
+# Last Updated: Date
+
+# Following Article: https://easylinuxtipsproject.blogspot.com/p/clean-mint.html#ID1
+# Not complete
+
+# Empty trash
+rm -rf ~/.local/share/Trash/*
+
+# Clear thumbnail cache
+rm -rfv ~/.cache/thumbnails
+
+# Exit with success status
+exit 0

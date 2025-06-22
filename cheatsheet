@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Author: Bruno Guimarães
+# Description: Brief description of what the script does
+# Version: 1.0
+# Last Updated: Date
+
 comandos=$(ls --format=single-column ~/.utils/commands | cut -d_ -f1 | tr 'A-Z' 'a-z')
 lista=($comandos)
 parametro="$1"
