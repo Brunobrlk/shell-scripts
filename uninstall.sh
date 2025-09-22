@@ -9,10 +9,11 @@
 set -euo pipefail
 
 TARGET="$HOME/.local/bin"
-mkdir -p "$TARGET"
 
 for script in bin/*; do
     name=$(basename "$script")
-    ln -sf "$(pwd)/$script" "$TARGET/$name"
-    echo "Installed: $name → $TARGET/$name"
+    if [ -L "$TARGET/$name" ]; then
+        rm "$TARGET/$name"
+        echo "Removed: $name"
+    fi
 done
