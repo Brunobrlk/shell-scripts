@@ -14,5 +14,6 @@ mkdir -p "$TARGET"
 for script in bin/*; do
     name=$(basename "$script")
     ln -sf "$(pwd)/$script" "$TARGET/$name"
+    chmod +x "$TARGET/$name"
     echo "Installed: $name → $TARGET/$name"
 done
