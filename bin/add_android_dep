@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Last update: 2025-11-07
 # kotlin version: 2.1.10
+
 set -e
 # --- CONFIG ---
 PROJECT_DIR="${1:-$(pwd)}"
