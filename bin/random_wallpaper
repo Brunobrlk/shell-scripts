@@ -46,4 +46,4 @@ if [[ -z "$WALLPAPER" ]]; then
 fi
 
 # Set wallpaper
-feh --bg-fill "$WALLPAPER"
+feh --bg-fill --no-fehbg "$WALLPAPER"
