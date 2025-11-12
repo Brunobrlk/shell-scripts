@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
+# Depends on: https://github.com/adi1090x/rofi
+
+# Import Theme
+type="$HOME/.config/rofi/applets/type-5"
+style='stylebrlk.rasi'
+theme="$type/$style"
+
+list_col='1'
+list_row='8'
+efonts="JetBrains Mono Nerd Font 10"
+
+declare -A MENU=(
+    [" LinkedIn"]="https://www.linkedin.com/feed/"
+    [" LinkedIn Profile"]="https://www.linkedin.com/in/brunoguimaraesdev/"
+
+    ["󰦆 M3 Docs"]="https://github.com/material-components/material-components-android/tree/master/docs/components"
+    [" Figma"]="https://www.figma.com/files/team/1436147951820565290/recents-and-sharing?fuid=1436147949753610369"
+
+    [" Firebase Console"]="https://console.firebase.google.com/u/2/"
+    [" AdMob Console"]="https://admob.google.com/v2/home?authuser=2"
+    [" Google Cloud Console"]="https://console.cloud.google.com/"
+    [" Play Console"]="https://play.google.com/console/u/2/developers/8353177567800618286/app-list"
+
+    [" Reverso Context"]="https://dicionario.reverso.net/ingles-definicao/fortress#translation=brazilian"
+    ["󱚟 ChatGPT"]="https://chat.openai.com/chat"
+    [" Page Archive"]="https://archive.ph/"
+    ["󰀲 Android Developer"]="https://developer.android.com/"
+
+    ["󰗚 MangaPark"]="https://mangapark.com/"
+    ["󰑈 9Anime"]="https://9animetv.to/home"
+
+    [" Icons8"]="https://icons8.com/"
+    [" IconFinder"]="https://www.iconfinder.com/"
+    [" Material Icons"]="https://fonts.google.com/icons"
+    [" Find Nerd Font Icon"]="https://www.nerdfonts.com/cheat-sheet"
+
+    ["󰎞 Notion English"]="https://www.notion.so/English-4851a4d325064c558474c47f8a9f5b26"
+    ["󰎞 Notion Diary"]="https://www.notion.so/Diary-296b08bd4626804e9c02d587d81b65ca"
+    ["󰎞 Notion Drafts"]="https://www.notion.so/be4070c985524abe8e9011f92f90c4c2?v=8f6df30ae77740389045c227cfff758f"
+
+    [" Github Profile"]="https://github.com/Brunobrlk"
+    [" Github Philipp Lackner"]="https://github.com/philipplackner"
+    [" Github Search Code"]="https://github.com/search?q=language%3Akotlin+&type=code"
+
+    ["󰗃 Youtube History"]="https://www.youtube.com/feed/history"
+)
+# Rofi CMD
+rofi_cmd() {
+	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
+		-theme-str 'textbox-prompt-colon {str: "";}' \
+		-theme-str "element-text {font: \"$efonts\";}" \
+		-dmenu \
+        -i \
+		-p "$prompt" \
+		-mesg "$mesg" \
+		-markup-rows \
+		-theme ${theme}
+}
+
+CHOICE=$(printf "%s\n" "${!MENU[@]}" | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+xdg-open ${MENU[$CHOICE]}
