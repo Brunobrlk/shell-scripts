@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
+# Depends on: https://github.com/adi1090x/rofi
+
+# Import Theme
+type="$HOME/.config/rofi/applets/type-5"
+style='stylebrlk.rasi'
+theme="$type/$style"
+
+list_col='1'
+list_row='8'
+efonts="JetBrains Mono Nerd Font 10"
+
+# Rofi CMD
+rofi_cmd() {
+	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
+		-theme-str 'mainbox { children: [ "imagebox" ]; }' \
+		-theme-str 'imagebox { children: [ "inputbar", "listbox" ]; background-image: none;}' \
+		-theme-str 'listbox { padding: 20px 0px 0px 0px; }' \
+		-theme-str "element-text {font: \"$efonts\";}" \
+		-dmenu \
+        -i \
+		-markup-rows \
+		-theme ${theme}
+}
+
+CHOICE=$(greenclip print | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+
+echo $CHOICE | xsel -b
