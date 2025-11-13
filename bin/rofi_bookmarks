@@ -12,6 +12,17 @@ list_col='1'
 list_row='8'
 efonts="JetBrains Mono Nerd Font 10"
 
+# Rofi CMD
+rofi_cmd() {
+	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
+		-theme-str 'textbox-prompt-colon {str: "";}' \
+		-theme-str "element-text {font: \"$efonts\";}" \
+		-dmenu \
+        -i \
+		-markup-rows \
+		-theme ${theme}
+}
+
 declare -A MENU=(
     [" LinkedIn"]="https://www.linkedin.com/feed/"
     [" LinkedIn Profile"]="https://www.linkedin.com/in/brunoguimaraesdev/"
@@ -47,18 +58,6 @@ declare -A MENU=(
 
     ["󰗃 Youtube History"]="https://www.youtube.com/feed/history"
 )
-# Rofi CMD
-rofi_cmd() {
-	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
-		-theme-str 'textbox-prompt-colon {str: "";}' \
-		-theme-str "element-text {font: \"$efonts\";}" \
-		-dmenu \
-        -i \
-		-p "$prompt" \
-		-mesg "$mesg" \
-		-markup-rows \
-		-theme ${theme}
-}
 
 CHOICE=$(printf "%s\n" "${!MENU[@]}" | rofi_cmd)
 [[ -z "$CHOICE" ]] && exit 0

@@ -17,12 +17,32 @@ LIBS_SECTION_PATTERN="libraries"
 VERSIONS_SECTION_PATTERN="versions"
 PLUGINS_SECTION_PATTERN="plugins"
 
+# Import Theme
+type="$HOME/.config/rofi/applets/type-5"
+style='stylebrlk.rasi'
+theme="$type/$style"
+
+list_col='1'
+list_row='8'
+efonts="JetBrains Mono Nerd Font 10"
+
+# Rofi CMD
+rofi_cmd() {
+	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
+		-theme-str 'textbox-prompt-colon {str: "";}' \
+		-theme-str "element-text {font: \"$efonts\";}" \
+		-dmenu \
+        -i \
+		-markup-rows \
+		-theme ${theme}
+}
+
 # --- LIBRARY LIST WITH EMOJIS (easy to add new entries) ---
 LIB_CHOICES=(
   "🚀 AppStartup"
   "🌀 Coroutines"
   "🖼️ Glide"
-  "📝 Gson"
+  "📝 RetrofitGsonConverter"
   "🛡️ Hilt"
   "🧩 Kapt"
   "🔧 Ksp"
@@ -52,7 +72,7 @@ LIB_CHOICES=(
   "🔥 FirebaseDatabase"
   "☕ Koin"
   "📡 OkHttp"
-  "💨 Moshi"
+  "💨 RetrofitMoshiConverter"
   "⚡ Ktor"
   "🌀 Coil"
   "🧊 Lottie"
@@ -69,8 +89,7 @@ LIB_CHOICES=(
   # "📱 PlayServicesAuth"
 )
 
-# --- ROFI MENU (fuzzy + case-insensitive) ---
-CHOICE=$(printf "%s\n" "${LIB_CHOICES[@]}" | rofi -dmenu -i -matching fuzzy -p "Add dependency:")
+CHOICE=$(printf "%s\n" "${LIB_CHOICES[@]}" | rofi_cmd)
 [[ -z "$CHOICE" ]] && exit 0
 CHOICE="${CHOICE##* }"
 
@@ -152,9 +171,8 @@ case "$CHOICE" in
     add_dependency 'implementation(libs.glide)'
     add_dependency 'annotationProcessor(libs.glide.compiler)'
     ;;
-  "Gson")
-    append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'gsonVersion = "2.9.0"'
-    append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "gsonVersion" }'
+  "RetrofitGsonConverter")
+    append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }'
     add_dependency 'implementation(libs.gson)'
     ;;
   "Hilt")
@@ -252,10 +270,9 @@ case "$CHOICE" in
     append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }'
     add_dependency 'implementation(libs.okhttp)'
     ;;
-  "Moshi")
-    append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'moshi = "1.14.0"'
-    append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'moshi = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }'
-    add_dependency 'implementation(libs.moshi)'
+  "RetrofitMoshiConverter")
+    append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }'
+    add_dependency 'implementation(libs.converter.moshi)'
     ;;
   "Ktor")
     append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'ktorClient = "3.3.2"'

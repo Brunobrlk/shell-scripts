@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
+# Depends on: https://github.com/adi1090x/rofi
+
+# Import Theme
+type="$HOME/.config/rofi/applets/type-5"
+style='stylebrlk.rasi'
+theme="$type/$style"
+
+list_col='1'
+list_row='8'
+efonts="JetBrains Mono Nerd Font 10"
+
+# Rofi CMD
+rofi_cmd() {
+	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
+		-theme-str 'textbox-prompt-colon {str: "";}' \
+		-theme-str "element-text {font: \"$efonts\";}" \
+		-dmenu \
+        -i \
+		-markup-rows \
+		-theme ${theme}
+}
+
+CHOICE=$(virsh list --all --name | awk 'NF' | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+
+virsh start "$CHOICE"; virt-manager --connect qemu:///system --show-domain-console "$CHOICE"
