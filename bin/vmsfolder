@@ -10,24 +10,24 @@ path_to_script="/usr/local/bin/vmsfolder"
 
 # Function to display script usage information
 usage() {
-  cat <<EOF
-$(basename $0) - Automation of the process of sharing folder between host and vm
+    cat <<EOF
+    $(basename $0) - Automation of the process of sharing folder between host and vm
 
-Description:
+    Description:
     $(basename $0) is a script for automate the process of mounting shared folders into the virtual machine
 
-Usage:
+    Usage:
     $(basename $0) [options] <source_folder> <destination_folder>
 
-Options:
+    Options:
     -h, --help          Display this help message and exit
     -s, --save          Save the current configuration to system initialization
 
-Arguments:
+    Arguments:
     <source_folder>            The folder where you've set the host machine shared folder
     <destination_folder>       The folder where the system will be sharing the files, allowing access them from the virtual machine
 
-Examples:
+    Examples:
     $(basename $0) /shareddata /home/my_user/vm_folder
 EOF
 exit 0
@@ -35,21 +35,21 @@ exit 0
 
 # Function to mount shared folder in system initialization
 start_with_the_system(){
-  service_name="mount_$(basename $source_folder).service"
-  echo $service_name
-  echo $source_folder
-  echo $destination_folder
-  echo "mount_$(basename $source_folder).service"
-  cat <<EOF > /etc/systemd/system/$service_name
-[Unit]
-Description=Start vmsfolder on system startup
+    service_name="mount_$(basename $source_folder).service"
+    echo $service_name
+    echo $source_folder
+    echo $destination_folder
+    echo "mount_$(basename $source_folder).service"
+    cat <<EOF > /etc/systemd/system/$service_name
+    [Unit]
+    Description=Start vmsfolder on system startup
 
-[Service]
-Type=oneshot
-ExecStart=$path_to_script $source_folder $destination_folder
+    [Service]
+    Type=oneshot
+    ExecStart=$path_to_script $source_folder $destination_folder
 
-[Install]
-WantedBy=multi-user.target
+    [Install]
+    WantedBy=multi-user.target
 EOF
 
 echo "$SUDO_USER ALL=(ALL) NOPASSWD: $path_to_script $source_folder $destination_folder" >> /etc/sudoers
@@ -82,12 +82,6 @@ done
 # Check if the correct number of arguments is provided
 if [ $# -ne 2 ]; then
     echo "Error: Incorrect number of arguments. Use -h or --help for usage information."
-    exit 1
-fi
-
-# Check if the script runs with sudo
-if [ "$EUID" -ne 0 ]; then
-    echo "This script requires superuser privileges"
     exit 1
 fi
 

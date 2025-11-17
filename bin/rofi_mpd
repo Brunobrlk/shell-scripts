@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-  
+
 ## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
 # Depends on: https://github.com/adi1090x/rofi
 
@@ -15,11 +15,11 @@ list_row='1'
 # Get MPD status
 status="$(mpc status)"
 if [[ -z "$status" ]]; then
-	prompt='Offline'
-	mesg="MPD is Offline"
+    prompt='Offline'
+    mesg="MPD is Offline"
 else
-	prompt="`mpc -f "%artist%" current`"
-	mesg="`mpc -f "%title%" current` :: `mpc status | grep "#" | awk '{print $3}'`"
+    prompt="`mpc -f "%artist%" current`"
+    mesg="`mpc -f "%title%" current` :: `mpc status | grep "#" | awk '{print $3}'`"
 fi
 
 # Choose icon based on whether MPD is playing
@@ -48,14 +48,14 @@ fi
 
 # Rofi CMD
 rofi_cmd() {
-	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
-		-theme-str 'textbox-prompt-colon {str: "";}' \
-		-dmenu \
-		-p "$prompt" \
-		-mesg "$mesg" \
-		${active} ${urgent} \
-		-markup-rows \
-		-theme ${theme}
+    rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
+        -theme-str 'textbox-prompt-colon {str: "";}' \
+        -dmenu \
+        -p "$prompt" \
+        -mesg "$mesg" \
+        ${active} ${urgent} \
+        -markup-rows \
+        -theme ${theme}
 }
 
 # Declare associative array

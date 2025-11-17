@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Author: Bruno Guimarães
+# Description: Zips native symbols (for release builds) and outputs them next to the APK/AAB
+# Version: 1.1
+# Last Updated: 2025-11-13
+
+set -e  # stop on first error
+
+# Verify project path
+[[ -z "$1" ]] && {
+    echo "Usage: $0 <project_root>"
+    exit 1
+}
+
+projectdir="$1"
+
+# Paths
+symbols_dir="${projectdir}/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
+output_dir="${projectdir}/app/release"
+
+# Dynamic filename (date-based)
+date_str=$(date +%Y%m%d)
+output_zip="${output_dir}/zip_symbols_${date_str}.zip"
+
+# Ensure the symbols directory exists
+if [[ ! -d "$symbols_dir" ]]; then
+    echo "Error: Symbols directory not found at: $symbols_dir"
+    exit 1
+fi
+
+# Ensure output directory exists
+mkdir -p "$output_dir"
+
+# Create the zip file
+echo "Zipping native symbols..."
+(cd "$symbols_dir" && zip -r "$output_zip" . > /dev/null)
+
+echo "✅ Symbols zipped successfully!"
+echo "📦 Output: $output_zip"
