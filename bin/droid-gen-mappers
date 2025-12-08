@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Last update: 2025-11-07
+
+set -e
+
+# --- Config ---
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+PROJECT_DIR="${1:-$(pwd)}"
+PKG=$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')
+PKG_DIR=$(echo "$PKG" | sed 's/\./\//g')
+MAIN_DIR="$PROJECT_DIR/app/src/main/java/$PKG_DIR"
+MODELS_DIR="$MAIN_DIR/domain/models"
+OUTPUT_DIR="$MAIN_DIR/data/genbrlk/mappers"
+
+# --- Variables ---
+files=()
+classes=()
+
+gen_dto_to_domain() {
+
+  mkdir -p "$OUTPUT_DIR"
+
+  for i in "${!classes[@]}"; do
+    CLASS="${classes[$i]}"
+    file="${files[$i]}"
+
+    # Reset for each class
+    PROPS_MAPPED=""
+
+    # Extract Kotlin props into array
+    readarray -t props < <(
+      sed -n 's/.*val[[:space:]]\+\([A-Za-z_][A-Za-z0-9_]*\).*/\1/p' "$file"
+    )
+
+    # Build property mappings (REAL newlines)
+    for prop in "${props[@]}"; do
+      printf -v PROPS_MAPPED "%s    %s = this.%s,\n" "$PROPS_MAPPED" "$prop" "$prop"
+    done
+
+    export PKG CLASS PROPS_MAPPED
+    envsubst <"$SCRIPT_DIR/templates/android/Mapper.kt" >"$OUTPUT_DIR/${CLASS}Mapper.kt"
+
+    echo "Generated mapper: ${CLASS}Mapper.kt"
+  done
+}
+
+# Collect files and class names (skip ListItem models)
+for file in "$MODELS_DIR"/*; do
+  base="${file##*/}"
+
+  [[ "$base" == *ListItem* ]] && continue
+
+  files+=("$file")
+  name="${base%.*}"
+  classes+=("$name")
+done
+
+echo "Found files: ${files[*]}"
+
+gen_dto_to_domain
+echo "finished"

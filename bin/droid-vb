@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Last update: 2025-11-07
+
+set -e
+
+# --- Config ---
+PROJECT_DIR="${1:-$(pwd)}"
+GRADLE_APP="$PROJECT_DIR/app/build.gradle.kts"
+
+sed -i "/buildTypes {/i\    buildFeatures {\n        viewBinding = true\n    }\n" "$GRADLE_APP"

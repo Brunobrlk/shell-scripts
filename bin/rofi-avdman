@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
+# Depends on: https://github.com/adi1090x/rofi
+
+# Import Rofi Theme
+# ──────────────────────────────────────────────────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+CHOICE=$(emulator -list-avds | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+emulator -avd "$CHOICE"

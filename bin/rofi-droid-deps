@@ -1,0 +1,360 @@
+#!/usr/bin/env bash
+# Last update: 2025-11-07
+# kotlin version: 2.1.10
+
+set -e
+# --- CONFIG ---
+PROJECT_DIR="${1:-$(pwd)}"
+APP_BUILD="$PROJECT_DIR/app/build.gradle.kts"
+ROOT_BUILD="$PROJECT_DIR/build.gradle.kts"
+LIBS_FILE="$PROJECT_DIR/gradle/libs.versions.toml"
+
+# --- PATTERNS (section labels used by append_after) ---
+ROOTALIAS_PATTERN="plugins {"
+APPALIAS_PATTERN="plugins {"
+DEPENDENCIES_PATTERN="dependencies {"
+LIBS_SECTION_PATTERN="libraries"
+VERSIONS_SECTION_PATTERN="versions"
+PLUGINS_SECTION_PATTERN="plugins"
+
+# Import Rofi Theme
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+
+# --- LIBRARY LIST WITH EMOJIS (easy to add new entries) ---
+LIB_CHOICES=(
+  "🚀 AppStartup"
+  "🌀 Coroutines"
+  "🖼️ Glide"
+  "📝 RetrofitGsonConverter"
+  "🛡️ Hilt"
+  "🧩 Kapt"
+  "🔧 Ksp"
+  "📡 LoggingInterceptor"
+  "🧭 Navigation"
+  "🔁 Retrofit"
+  "🗄️ Room"
+  "🌅 Splash"
+  "🌲 Timber"
+  "🟢 GoogleServices"
+  "💾 Datastore"
+  "🔁 WorkManager"
+  "🪄 Paging"
+  "🧰 LifecycleProcess"
+  "🎨 ConstraintLayout"
+  "📦 LiveData"
+  "🧭 NavigationSafeArgs"
+  "🔥 FirebaseBom"
+  "🔥 FirebaseAnalytics"
+  "🔥 FirebaseCrashlytics"
+  "🔥 FirebaseRemoteConfig"
+  "🔥 FirebasePerformance"
+  "🔥 FirebaseMessaging"
+  "🔥 FirebaseAuth"
+  "🔥 FirebaseFirestore"
+  "🔥 FirebaseStorage"
+  "🔥 FirebaseDatabase"
+  "☕ Koin"
+  "📡 OkHttp"
+  "💨 RetrofitMoshiConverter"
+  "⚡ Ktor"
+  "🌀 Coil"
+  "🧊 Lottie"
+  "🐛 LeakCanary"
+  # Not Implemented
+  # "🎬 ExoPlayer"
+  # "🪶 Chucker"
+  # "🧠 Compose"
+  # "📜 GradleVersionsPlugin"
+  # "📍 MapsUtils"
+  # "💰 PlayServicesWallet"
+  # "📢 PlayServicesAds"
+  # "📍 PlayServicesLocation"
+  # "📱 PlayServicesAuth"
+)
+
+CHOICE=$(printf "%s\n" "${LIB_CHOICES[@]}" | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+CHOICE="${CHOICE##* }"
+
+add_plugin() {
+  local file="$1"           # build.gradle(.kts) path
+  local section="plugins {" # usually 'plugins {'
+  local plugin_line="$2"    # line to insert, e.g. alias(libs.plugins.googleDaggerHilt)
+
+  # Avoid duplicates
+  if grep -qF "$plugin_line" "$file"; then
+    echo "Plugin already exists: $plugin_line"
+    return
+  fi
+
+  # Check if the section exists in file
+  if grep -q "^[[:space:]]*$section" "$file"; then
+    # Insert after 'plugins {' line
+    sed -i "/^[[:space:]]*$section/a \    $plugin_line" "$file"
+  else
+    # No section found → append a new plugins block at the top
+    {
+      echo "plugins {"
+      echo "    $plugin_line"
+      echo "}"
+      echo
+      cat "$file"
+    } >"${file}.tmp" && mv "${file}.tmp" "$file"
+  fi
+}
+
+append_after() {
+  local file="$1"
+  local section="$2"
+  local content="$3"
+  # only append if not already there
+  if ! grep -qF "$content" "$file"; then
+    sed -i "/^\[$section\]/a $content" "$file"
+  fi
+}
+
+add_dependency() {
+  local lib_line="$1"
+
+  # Check if already added
+  if grep -qF "$lib_line" "$APP_BUILD"; then
+    return
+  fi
+
+  # Try to insert inside dependencies block
+  if grep -qE "^\s*dependencies\s*{" "$APP_BUILD"; then
+    # Insert right after the opening line of the dependencies block
+    sed -i "/^\s*dependencies\s*{/a \    $lib_line" "$APP_BUILD"
+  else
+    # If no dependencies block exists, append it at the end
+    echo -e "\n\ndependencies {\n    $lib_line\n}" >>"$APP_BUILD"
+  fi
+}
+
+# --- DEPENDENCIES ---
+
+case "$CHOICE" in
+"AppStartup")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'startupRuntime = "1.2.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }'
+  add_dependency 'implementation(libs.androidx.startup.runtime)'
+  ;;
+"Coroutines")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'kotlinxCoroutinesAndroid = "1.10.2"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesAndroid" }'
+  add_dependency 'implementation(libs.kotlinx.coroutines.android)'
+  add_dependency 'implementation(libs.kotlinx.coroutines.core)'
+  ;;
+"Glide")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'glideVersion = "4.15.1"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'glide = { module = "com.github.bumptech.glide", name="glide", version.ref = "glideVersion" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'glide-compiler = { module = "com.github.bumptech.glide", name="compiler", version.ref = "glideVersion" }'
+  add_dependency 'implementation(libs.glide)'
+  add_dependency 'annotationProcessor(libs.glide.compiler)'
+  ;;
+"RetrofitGsonConverter")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }'
+  add_dependency 'implementation(libs.gson)'
+  ;;
+"Hilt")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'hiltAndroid = "2.57.2"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }'
+  append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'googleDaggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }'
+  append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }'
+  add_dependency 'implementation(libs.hilt.android)'
+  add_dependency 'kapt(libs.hilt.android.compiler)'
+  add_dependency '// Dagger Hilt'
+  add_plugin "$ROOT_BUILD" 'alias(libs.plugins.org.jetbrains.kotlin.kapt) apply false'
+  add_plugin "$APP_BUILD" 'alias(libs.plugins.org.jetbrains.kotlin.kapt)'
+  add_plugin "$ROOT_BUILD" 'alias(libs.plugins.googleDaggerHilt) apply false'
+  add_plugin "$APP_BUILD" 'alias(libs.plugins.googleDaggerHilt)'
+  ;;
+"Kapt")
+  append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }'
+  add_plugin "$ROOT_BUILD" 'alias(libs.plugins.org.jetbrains.kotlin.kapt) apply false'
+  add_plugin "$APP_BUILD" 'alias(libs.plugins.org.jetbrains.kotlin.kapt)'
+  ;;
+"Ksp")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'kspVersion = "2.1.21-2.0.2"'
+  append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }'
+  add_plugin "$ROOT_BUILD" 'alias(libs.plugins.ksp) apply false'
+  add_plugin "$APP_BUILD" 'alias(libs.plugins.ksp)'
+  ;;
+"LoggingInterceptor")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'loggingInterceptor = "5.2.1"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }'
+  add_dependency '// Network logs'
+  add_dependency 'implementation(libs.logging.interceptor)'
+  ;;
+"Navigation")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'navigationFragmentKtx = "2.9.5"'
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'navigationUiKtx = "2.9.5"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }'
+  add_dependency 'implementation(libs.androidx.navigation.fragment.ktx)'
+  add_dependency 'implementation(libs.androidx.navigation.ui.ktx)'
+  ;;
+"Retrofit")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'retrofit = "2.9.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }'
+  add_dependency 'implementation(libs.retrofit)'
+  ;;
+"Room")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'room = "2.8.3"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }'
+  add_dependency '// Room Database'
+  add_dependency 'implementation(libs.androidx.room.ktx)'
+  add_dependency 'ksp(libs.androidx.room.compiler)'
+  ;;
+"Splash")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'coreSplashscreen = "1.0.1"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }'
+  add_dependency '// SplashScreen Native API'
+  add_dependency 'implementation(libs.androidx.core.splashscreen)'
+  ;;
+"Timber")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'timber = "5.0.1"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }'
+  add_dependency 'implementation(libs.timber)'
+  ;;
+"GoogleServices")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'google-services = "4.2.2"'
+  append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }'
+  add_plugin "$ROOT_BUILD" 'alias(libs.plugins.google.services) apply false'
+  add_plugin "$APP_BUILD" 'alias(libs.plugins.google.services)'
+  ;;
+"WorkManager")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'workManager = "2.11.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }'
+  add_dependency 'implementation(libs.androidx.work.runtime.ktx)'
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'hiltWork = "1.3.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }'
+  add_dependency 'implementation(libs.androidx.hilt.work)'
+  add_dependency 'kapt(libs.androidx.hilt.compiler)'
+  ;;
+"Datastore")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'datastorePreferences = "1.1.1"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }'
+  add_dependency 'implementation(libs.androidx.datastore.preferences)'
+  ;;
+"Koin")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'koin = "4.1.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }'
+  add_dependency 'implementation(libs.koin.android)'
+  ;;
+"OkHttp")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'okhttp = "5.3.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }'
+  add_dependency 'implementation(libs.okhttp)'
+  ;;
+"RetrofitMoshiConverter")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }'
+  add_dependency 'implementation(libs.converter.moshi)'
+  ;;
+"Ktor")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'ktorClient = "3.3.2"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClient" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClient" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktorClient" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClient" }'
+  add_dependency 'implementation(libs.ktor.client.core)'
+  add_dependency 'implementation(libs.ktor.client.android)'
+  add_dependency 'implementation(libs.ktor.client.serialization)'
+  add_dependency 'implementation(libs.ktor.client.logging)'
+  ;;
+"Coil")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'coil = "2.5.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'coil = { module = "io.coil-kt:coil", version.ref = "coil" }'
+  add_dependency 'implementation(libs.coil)'
+  ;;
+"Lottie")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'lottie = "6.6.7"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }'
+  add_dependency 'implementation(libs.lottie)'
+  ;;
+"LeakCanary")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'leakcanary = "2.14"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }'
+  add_dependency 'debugImplementation(libs.leakcanary.android)'
+  ;;
+"FirebaseBom")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'firebaseBom = "33.7.0"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }'
+  add_dependency 'implementation(platform(libs.firebase.bom))'
+  ;;
+"FirebaseAnalytics")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-analytics = { module = "com.google.firebase:firebase-analytics" }'
+  add_dependency 'implementation(libs.firebase.analytics)'
+  ;;
+"FirebaseCrashlytics")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'crashlytics = "3.0.2"'
+  append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }'
+  add_plugin "$APP_BUILD" "alias(libs.plugins.crashlytics)"
+  add_plugin "$ROOT_BUILD" "alias(libs.plugins.crashlytics) apply false"
+
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }'
+  add_dependency 'implementation(libs.firebase.crashlytics)'
+  ;;
+"FirebasePerformance")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-perf = { module = "com.google.firebase:firebase-perf" }'
+  add_dependency 'implementation(libs.firebase.perf)'
+  ;;
+"FirebaseRemoteConfig")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-config = { module = "com.google.firebase:firebase-config" }'
+  add_dependency 'implementation(libs.firebase.config)'
+  ;;
+"FirebaseMessaging")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-messaging = { module = "com.google.firebase:firebase-messaging" }'
+  add_dependency 'implementation(libs.firebase.messaging)'
+  ;;
+"FirebaseAuth")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase_auth = { module = "com.google.firebase:firebase-auth-ktx" }'
+  add_dependency 'implementation(libs.firebase.auth)'
+  ;;
+"FirebaseFirestore")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-firestore = { module = "com.google.firebase:firebase-firestore" }'
+  add_dependency 'implementation(libs.firebase.firestore)'
+  ;;
+"FirebaseStorage")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-storage = { module = "com.google.firebase:firebase-storage" }'
+  add_dependency 'implementation(libs.firebase.storage)'
+  ;;
+"FirebaseDatabase")
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'firebase-database = { module = "com.google.firebase:firebase-database" }'
+  add_dependency 'implementation(libs.firebase.database)'
+  ;;
+"ProcessLifecycle")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'lifecycleProcess = "2.9.4"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }'
+  add_dependency 'implementation(libs.androidx.lifecycle.process)'
+  ;;
+"Paging")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'pagingVersion = "3.3.6"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "pagingVersion" }'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }'
+  add_dependency 'implementation(libs.androidx.room.paging)'
+  add_dependency 'implementation(libs.androidx.paging.runtime)'
+  ;;
+"ConstraintLayout")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'constraintlayout = "2.2.1"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }'
+  add_dependency 'implementation(libs.androidx.constraintlayout)'
+  ;;
+"LiveData")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'lifecycleLivedataKtx = "2.9.4"'
+  append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }'
+  add_dependency 'implementation(libs.androidx.lifecycle.livedata.ktx)'
+  ;;
+"NavigationSafeArgs")
+  append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'navigationSafeArgs = "2.9.5"'
+  append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'androidx-navigation-safeargs-kotlin = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigationSafeArgs" }'
+  add_plugin "$APP_BUILD" 'alias(libs.plugins.androidx.navigation.safeargs.kotlin)'
+  add_plugin "$ROOT_BUILD" 'alias(libs.plugins.androidx.navigation.safeargs.kotlin) apply false'
+  ;;
+esac

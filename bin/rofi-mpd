@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
+# Depends on: https://github.com/adi1090x/rofi
+
+# Import Theme
+type="$HOME/.config/rofi/applets/type-2"
+style='style-3.rasi'
+theme="$type/$style"
+
+# Theme Elements
+list_col='6'
+list_row='1'
+
+# Get MPD status
+status="$(mpc status)"
+if [[ -z "$status" ]]; then
+  prompt='Offline'
+  mesg="MPD is Offline"
+else
+  prompt="$(mpc -f "%artist%" current)"
+  mesg="$(mpc -f "%title%" current) :: $(mpc status | grep "#" | awk '{print $3}')"
+fi
+
+# Choose icon based on whether MPD is playing
+if [[ $status == *"[playing]"* ]]; then
+  option_1="" # pause icon
+else
+  option_1="" # play icon
+fi
+
+# Toggle Actions
+active=''
+urgent=''
+## Repeat
+if [[ ${status} == *"repeat: on"* ]]; then
+  active="-a 4"
+elif [[ ${status} == *"repeat: off"* ]]; then
+  urgent="-u 4"
+fi
+
+## Random
+if [[ ${status} == *"random: on"* ]]; then
+  [ -n "$active" ] && active+=",5" || active="-a 5"
+elif [[ ${status} == *"random: off"* ]]; then
+  [ -n "$urgent" ] && urgent+=",5" || urgent="-u 5"
+fi
+
+# Rofi CMD
+rofi_cmd() {
+  rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
+    -theme-str 'textbox-prompt-colon {str: "";}' \
+    -dmenu \
+    -p "$prompt" \
+    -mesg "$mesg" \
+    ${active} ${urgent} \
+    -markup-rows \
+    -theme ${theme}
+}
+
+# Declare associative array
+declare -A MENU=(
+  ["$option_1"]="bash -c 'mpc toggle -q; notify-send -u low -t 1000 \"  \$(mpc current)\"'"
+  [""]="mpc stop -q"
+  [""]="bash -c 'mpc prev -q; notify-send -u low -t 1000 \"  \$(mpc current)\"'"
+  [""]="bash -c 'mpc next -q; notify-send -u low -t 1000 \"  \$(mpc current)\"'"
+  [""]="mpc repeat -q"
+  [""]="mpc random -q"
+)
+
+ORDER=("$option_1" "" "" "" "" "")
+
+CHOICE=$(printf "%s\n" "${ORDER[@]}" | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+
+eval "${MENU[$CHOICE]}"

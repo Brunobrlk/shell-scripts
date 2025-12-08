@@ -11,24 +11,24 @@ INCLUDE_ARGS=false
 INCLUDE_OPTS=false
 
 while [[ $# -gt 0 ]]; do
-    case "$1" in
-        -u|--usage)
-            INCLUDE_USAGE=true
-            INCLUDE_OPTS=true  # Ensure usage is callable
-            ;;
-        -a|--args)
-            INCLUDE_ARGS=true
-            ;;
-        -o|--opts)
-            INCLUDE_OPTS=true
-            ;;
-        -f|--full)
-            INCLUDE_USAGE=true
-            INCLUDE_ARGS=true
-            INCLUDE_OPTS=true
-            ;;
-        -h|--help)
-            cat <<EOF
+  case "$1" in
+  -u | --usage)
+    INCLUDE_USAGE=true
+    INCLUDE_OPTS=true # Ensure usage is callable
+    ;;
+  -a | --args)
+    INCLUDE_ARGS=true
+    ;;
+  -o | --opts)
+    INCLUDE_OPTS=true
+    ;;
+  -f | --full)
+    INCLUDE_USAGE=true
+    INCLUDE_ARGS=true
+    INCLUDE_OPTS=true
+    ;;
+  -h | --help)
+    cat <<EOF
             Usage: $(basename "$0") [options] <file_name>
 
             Options:
@@ -42,23 +42,23 @@ while [[ $# -gt 0 ]]; do
             $(basename "$0") my_script.sh
             $(basename "$0") -f my_script.sh
 EOF
-exit 0
-;;
--*)
+    exit 0
+    ;;
+  -*)
     echo "Unknown flag: $1"
     exit 1
     ;;
-*)
+  *)
     break
     ;;
-esac
-shift
+  esac
+  shift
 done
 
 # ─── VALIDATE TARGET FILENAME ───────────────────────────────────
 if [[ $# -eq 0 ]]; then
-    echo "Error: Missing <file_name>. Use -h for help."
-    exit 1
+  echo "Error: Missing <file_name>. Use -h for help."
+  exit 1
 fi
 
 filename="$1"
@@ -130,21 +130,20 @@ echo "Hello, World!"
 script_code="$header"
 
 if $INCLUDE_USAGE; then
-    script_code+="$usage_func"
+  script_code+="$usage_func"
 fi
 
 if $INCLUDE_OPTS; then
-    script_code+="$opt_parsing"
+  script_code+="$opt_parsing"
 fi
 
 if $INCLUDE_ARGS; then
-    script_code+="$arg_check"
+  script_code+="$arg_check"
 fi
 
 script_code+="$main"
 
 # ─── WRITE TO FILE ──────────────────────────────────────────────
-echo "$script_code" > "$filename"
+echo "$script_code" >"$filename"
 chmod +x "$filename"
 lvim "$filename"
-

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
+# Depends on: https://github.com/adi1090x/rofi
+
+# Import Rofi Theme
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+
+CHOICE=$(virsh list --all --name | awk 'NF' | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+
+virsh start "$CHOICE"
+virt-manager --connect qemu:///system --show-domain-console "$CHOICE"

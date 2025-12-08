@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# Last update: 2025-11-07
+
+set -e
+# --- CONFIG ---
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+PROJECT_DIR="${1:-$(pwd)}"
+MANIFEST_FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
+VALUES_FOLDER="$PROJECT_DIR/app/src/main/res/values"
+MSGS_FILE="$VALUES_FOLDER/strings_messages.xml"
+TITLES_FILE="$VALUES_FOLDER/strings_titles.xml"
+
+# Import Rofi Theme
+source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+
+add_resource_line() {
+  local FILE_PATH="$1"
+  local STRING="$2"
+
+  # 1. Create file with default content if it doesn't exist
+  if [ ! -f "$FILE_PATH" ]; then
+    envsubst <"$SCRIPT_DIR/templates/android/resources.xml" >"$FILE_PATH"
+  fi
+
+  # 2. Insert the line before </resources> with 4 spaces indentation
+  sed -i "/<\/resources>/ i\    $STRING" "$FILE_PATH"
+}
+
+add_manifest_permission() {
+  local STRING="$1"
+
+  # Insert the line before </resources> with 4 spaces indentation
+  sed -i "/<application/ i\    <uses-permission android:name=\"android\.permission\.$STRING\"\/>" "$MANIFEST_FILE"
+}
+
+# --- LIBRARY LIST WITH SUBJECT-SPECIFIC ICONS ---
+LIB_CHOICES=(
+  "📷 Camera"
+  "📍 Location"
+  "💾 Storage"
+  "🌐 Internet"
+  "🎙️ Microphone"
+  "📞 Phone"
+  "👥 Contacts"
+  "🔔 Notifications"
+  "📶 Bluetooth"
+  "📡 NFC"
+  "🧭 Sensors"
+  "⚡ Wake Lock"
+)
+
+CHOICE=$(printf "%s\n" "${LIB_CHOICES[@]}" | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+CHOICE="${CHOICE##* }"
+
+# --- PERMISSIONS ---
+case "$CHOICE" in
+"Camera")
+  add_resource_line $TITLES_FILE "<string name=\"title_camera_permission\">Camera Permission</string>"
+  add_resource_line $MSGS_FILE "<string name=\"msg_camera_permission\">The app needs camera permission to take photos.</string>"
+  add_manifest_permission "CAMERA"
+  ;;
+
+"Location")
+  add_resource_line $TITLES_FILE "<string name=\"title_location_permission\">Location Permission</string>"
+  add_resource_line $MSGS_FILE "<string name=\"msg_location_permission\">The app needs location permission to provide location-based services.</string>"
+  add_manifest_permission "ACCESS_FINE_LOCATION"
+  add_manifest_permission "ACCESS_COARSE_LOCATION"
+  ;;
+
+"Storage")
+  add_resource_line $TITLES_FILE "<string name=\"title_storage_permission\">Storage Permission</string>"
+  add_resource_line $MSGS_FILE "<string name=\"msg_storage_permission\">The app needs storage permission to read and save files.</string>"
+  add_manifest_permission "READ_EXTERNAL_STORAGE"
+  add_manifest_permission "WRITE_EXTERNAL_STORAGE"
+  ;;
+
+"Internet")
+  add_manifest_permission "INTERNET"
+  add_manifest_permission "ACCESS_NETWORK_STATE"
+  ;;
+
+"Microphone")
+  add_resource_line $TITLES_FILE "<string name=\"title_microphone_permission\">Microphone Permission</string>"
+  add_resource_line $MSGS_FILE "<string name=\"msg_microphone_permission\">The app needs microphone permission to record audio.</string>"
+  add_manifest_permission "RECORD_AUDIO"
+  ;;
+
+"Phone")
+  add_resource_line $TITLES_FILE "<string name=\"title_phone_permission\">Phone Permission</string>"
+  add_resource_line $MSGS_FILE "<string name=\"msg_phone_permission\">The app needs phone permission to manage calls.</string>"
+  add_manifest_permission "READ_PHONE_STATE"
+  ;;
+
+"Contacts")
+  add_resource_line $TITLES_FILE "<string name=\"title_contacts_permission\">Contacts Permission</string>"
+  add_resource_line $MSGS_FILE "<string name=\"msg_contacts_permission\">The app needs contacts permission to access your contacts.</string>"
+  add_manifest_permission "READ_CONTACTS"
+  add_manifest_permission "WRITE_CONTACTS"
+  ;;
+
+"Notifications")
+  add_resource_line $TITLES_FILE "<string name=\"title_notification_permission\">Notification Permission</string>"
+  add_resource_line $MSGS_FILE "<string name=\"msg_notification_permission\">The app needs permission to send notifications.</string>"
+  add_manifest_permission "POST_NOTIFICATIONS"
+  ;;
+
+"Bluetooth")
+  add_manifest_permission "BLUETOOTH"
+  add_manifest_permission "BLUETOOTH_CONNECT"
+  add_manifest_permission "BLUETOOTH_SCAN"
+  ;;
+
+"NFC")
+  add_manifest_permission "NFC"
+  ;;
+
+"Sensors")
+  add_manifest_permission "BODY_SENSORS"
+  ;;
+
+"Wake")
+  add_manifest_permission "WAKE_LOCK"
+  ;;
+esac

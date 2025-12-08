@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Last update: 2025-11-07
+
+set -e
+# --- CONFIG ---
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+PROJECT_DIR="${1:-$(pwd)}"
+
+PKG=$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')
+PKG_DIR=$(echo $PKG | sed 's/\./\//g')
+
+MANIFEST_FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
+APPLICATION_FILE="$PROJECT_DIR/app/src/main/java/$PKG_DIR/CoreApplication.kt"
+
+sed -i "/<application/ a\        android:name=\"\.CoreApplication\" " "$MANIFEST_FILE"
+
+export PKG
+envsubst <"$SCRIPT_DIR/templates/android/CoreApplication.kt" >"$APPLICATION_FILE"

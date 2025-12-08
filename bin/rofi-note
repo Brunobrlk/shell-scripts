@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
+# Depends on: https://github.com/adi1090x/rofi
+
+NOTES_DIR="$HOME/.utils/Notes"
+
+# Import Rofi Theme
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+
+CHOICE=$(ls ~/.utils/Notes | rofi_cmd)
+[[ -z "$CHOICE" ]] && exit 0
+
+alacritty -o 'window.startup_mode="Fullscreen"' \
+  -e bash -lic "lvim '${NOTES_DIR}/${CHOICE}'"

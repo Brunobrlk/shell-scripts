@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 ## Author : Aditya Shakya (adi1090x)
 ## Github : @adi1090x
 # Depends on: https://github.com/adi1090x/rofi
@@ -17,5 +16,5 @@ theme='style-7'
 
 ## Run
 rofi \
-    -show drun \
-    -theme ${dir}/${theme}.rasi
+  -show drun \
+  -theme ${dir}/${theme}.rasi

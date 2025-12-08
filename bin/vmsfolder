@@ -10,7 +10,7 @@ path_to_script="/usr/local/bin/vmsfolder"
 
 # Function to display script usage information
 usage() {
-    cat <<EOF
+  cat <<EOF
     $(basename $0) - Automation of the process of sharing folder between host and vm
 
     Description:
@@ -30,17 +30,17 @@ usage() {
     Examples:
     $(basename $0) /shareddata /home/my_user/vm_folder
 EOF
-exit 0
+  exit 0
 }
 
 # Function to mount shared folder in system initialization
-start_with_the_system(){
-    service_name="mount_$(basename $source_folder).service"
-    echo $service_name
-    echo $source_folder
-    echo $destination_folder
-    echo "mount_$(basename $source_folder).service"
-    cat <<EOF > /etc/systemd/system/$service_name
+start_with_the_system() {
+  service_name="mount_$(basename $source_folder).service"
+  echo $service_name
+  echo $source_folder
+  echo $destination_folder
+  echo "mount_$(basename $source_folder).service"
+  cat <<EOF >/etc/systemd/system/$service_name
     [Unit]
     Description=Start vmsfolder on system startup
 
@@ -52,37 +52,37 @@ start_with_the_system(){
     WantedBy=multi-user.target
 EOF
 
-echo "$SUDO_USER ALL=(ALL) NOPASSWD: $path_to_script $source_folder $destination_folder" >> /etc/sudoers
+  echo "$SUDO_USER ALL=(ALL) NOPASSWD: $path_to_script $source_folder $destination_folder" >>/etc/sudoers
 
-systemctl daemon-reload
+  systemctl daemon-reload
 
-systemctl enable $service_name
+  systemctl enable $service_name
 }
 
 # Parse command-line options
 while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h | --help)
-            usage
-            ;;
-        -s | --save)
-            SAVE=true
-            ;;
-        -*)
-            echo "Error: Unknown option: $1"
-            usage
-            ;;
-        *)
-            break
-            ;;
-    esac
-    shift
+  case $1 in
+  -h | --help)
+    usage
+    ;;
+  -s | --save)
+    SAVE=true
+    ;;
+  -*)
+    echo "Error: Unknown option: $1"
+    usage
+    ;;
+  *)
+    break
+    ;;
+  esac
+  shift
 done
 
 # Check if the correct number of arguments is provided
 if [ $# -ne 2 ]; then
-    echo "Error: Incorrect number of arguments. Use -h or --help for usage information."
-    exit 1
+  echo "Error: Incorrect number of arguments. Use -h or --help for usage information."
+  exit 1
 fi
 
 # Get the argument from the command-line argument
@@ -90,7 +90,7 @@ source_folder="$1"
 destination_folder="$2"
 
 if [ -v SAVE ]; then
-    start_with_the_system
+  start_with_the_system
 fi
 
 # Create destination folder if not exists and mount into it

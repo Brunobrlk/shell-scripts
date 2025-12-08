@@ -5,11 +5,10 @@
 # Version: 1.0
 # Last Updated: Date
 
-
 # Check if an argument is provided
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <source_file.c>"
-    exit 1
+  echo "Usage: $0 <source_file.c>"
+  exit 1
 fi
 
 # Extract file name without extension

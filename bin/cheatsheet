@@ -5,15 +5,15 @@
 # Version: 1.0
 # Last Updated: Date
 
-list=$(ls --format=single-column ~/.utils/Cheatsheets| cut -d. -f1 | tr 'A-Z' 'a-z')
+list=$(ls --format=single-column ~/.utils/Cheatsheets | cut -d. -f1 | tr 'A-Z' 'a-z')
 commands=($list)
 
 for command in "${commands[@]}"; do
-	if [ "$1" == "$command" ]; then
-		path=$(echo "$command" | tr 'a-z' 'A-Z')
-		batcat ~/.utils/Cheatsheets/${path}.md
-		exit 0
-	fi
+  if [ "$1" == "$command" ]; then
+    path=$(echo "$command" | tr 'a-z' 'A-Z')
+    batcat ~/.utils/Cheatsheets/${path}.md
+    exit 0
+  fi
 done
 
 echo "$list"
