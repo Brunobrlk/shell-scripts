@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Depends on: https://github.com/adi1090x/rofi
+# Version: 1.0
+# Last Updated: 2025-12-19
 
-## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
-# Depends on: https://github.com/adi1090x/rofi
+set -euo pipefail
+IFS=$'\n\t'
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
 # Import Rofi Theme
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
 declare -A MENU=(
   [" LinkedIn"]="https://www.linkedin.com/feed/"
@@ -28,6 +35,9 @@ declare -A MENU=(
   ["󰗚 MangaPark"]="https://mangapark.com/"
   ["󰗚 MangaFire"]="https://mangafire.to/home"
   ["󰑈 9Anime"]="https://9animetv.to/home"
+  ["󰑈 AniGo"]="https://anigo.to/home"
+  ["󰑈 HiAnime"]="https://hianime.to/home"
+  ["󰑈 AniKai"]="https://anikai.to/home"
 
   [" Icons8"]="https://icons8.com/"
   [" Iconify"]="https://icon-sets.iconify.design/"
@@ -52,6 +62,17 @@ declare -A MENU=(
   ["󰗃 Youtube History"]="https://www.youtube.com/feed/history"
 )
 
-CHOICE=$(printf "%s\n" "${!MENU[@]}" | rofi_cmd)
-[[ -z "$CHOICE" ]] && exit 0
-xdg-open ${MENU[$CHOICE]}
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  local choice=$(printf "%s\n" "${!MENU[@]}" | rofi_cmd)
+  [[ -z "$choice" ]] && exit 0
+  xdg-open ${MENU[$choice]}
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

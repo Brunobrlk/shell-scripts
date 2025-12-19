@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Depends on: https://github.com/adi1090x/rofi
+# Description:
 # Version: 1.0
-# Last Updated: 2025-12-19
+# Last Updated: 2025-12-09
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -10,27 +10,49 @@ IFS=$'\n\t'
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
-# Import Rofi Theme
-readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-source "$SCRIPT_DIR/lib/rofi-theme.sh"
-
-readonly NOTES_DIR="$HOME/.utils/Notes"
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+readonly PROJECT_DIR="${1:-$(pwd)}"
+readonly PKG=$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')
+readonly PKG_DIR=$(printf "%s" "$PKG" | tr '.' '/')
+readonly MODULE_DIR="$PROJECT_DIR/app/src/main/java/$PKG_DIR"
+readonly ACTIVITY_TEMPLATE="$SCRIPT_DIR/templates/android/Activity.kt"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
 # ──────────────────────────────────────────────────────────────────────────────
-open_on_lvim() {
-  local file_path="$1"
-  alacritty -o 'window.startup_mode="Fullscreen"' -e bash -lic "lvim '$file_path'"
+setup_architecture(){
+  local module_dir="$1"
+  mkdir -p "$module_dir/core/di" "$module_dir/core/startup" "$module_dir/core/lifecycle" "$module_dir/core/utils"
+  mkdir -p "$module_dir/data/remote/services" "$module_dir/data/remote/utils" "$module_dir/data/remote/dtos" "$module_dir/data/mappers" "$module_dir/data/mediators"
+  mkdir -p "$module_dir/data/local/database/daos" "$module_dir/data/local/database/entities" "$module_dir/data/local/database/utils" 
+  mkdir -p "$module_dir/domain/models" "$module_dir/domain/repository"
+  mkdir -p "$module_dir/ui"
+}
+
+add_main_activity(){
+  local module_dir="$1"
+
+  local old_main_activity="$module_dir/MainActivity"
+  [[ -f "$old_main_activity" ]] && rm "$old_main_activity"
+
+  local pkg=$(printf '%s' "$module_dir" | sed 's/.*java\/\(.*\)/\1/' | tr '/' '.')
+  local template="$2"
+  local target_file="$module_dir/ui/MainActivity"
+  env PKG="$pkg" envsubst <"$template" >"$target_file"
+}
+
+add_resource() {
+  local values_dir="$1"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
 main() {
-  local choice=$(ls ~/.utils/Notes | rofi_cmd)
-  [[ -z "$choice" ]] && exit 0
-  open_on_lvim "$NOTES_DIR/$choice"
+  setup_architecture "$MODULE_DIR"
+  "$SCRIPT_DIR/bin/droid-appclass" "$PROJECT_DIR"
+  "$SCRIPT_DIR/bin/droid-vb" "$PROJECT_DIR"
+  add_main_activity "$MODULE_DIR" "$ACTIVITY_TEMPLATE"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

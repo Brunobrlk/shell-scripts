@@ -1,21 +1,47 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Brief description of what the script does
+# Description:
 # Version: 1.0
-# Last Updated: Date
+# Last Updated: 2025-12-10
 
-# Check if an argument is provided
-if [ $# -eq 0 ]; then
-  echo "Usage: $0 <source_file.c>"
-  exit 1
-fi
+set -euo pipefail
+IFS=$'\n\t'
 
-# Extract file name without extension
-filename=$(basename "$1")
-filename_without_extension="${filename%.*}"
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+ensure_args() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") <source_file.c>" >&2
+    return 1
+  fi
+}
 
-# Build the C program
-set -xe
-cc -Wall -Wextra -pedantic -o "$filename_without_extension" "$1"
-./$filename_without_extension
+build_and_execute() {
+  # Extract file name without extension
+  local file="$1"
+  local base_name="$(basename "$file")"
+  local output_name="${base_name%.*}"
+
+  echo "Compiling program.."
+  # Build the C program
+  cc -Wall -Wextra -pedantic -o "$output_name" "$file"
+
+  echo "Launching program.."
+  # Run it
+  "./$output_name"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  ensure_args "$@" || exit 1
+  build_and_execute "$1"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

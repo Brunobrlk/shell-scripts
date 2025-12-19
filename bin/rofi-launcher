@@ -1,20 +1,30 @@
 #!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Depends on: https://github.com/adi1090x/rofi
+# Version: 1.0
+# Last Updated: 2025-12-19
 
-## Author : Aditya Shakya (adi1090x)
-## Github : @adi1090x
-# Depends on: https://github.com/adi1090x/rofi
-#
-## Rofi   : Launcher (Modi Drun, Run, File Browser, Window)
-#
-## Available Styles
-#
-## style-1     style-2     style-3     style-4     style-5
-## style-6     style-7     style-8     style-9     style-10
+set -euo pipefail
+IFS=$'\n\t'
 
-dir="$HOME/.config/rofi/launchers/type-6"
-theme='style-7'
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  ## Available Styles
+  ### style-1     style-2     style-3     style-4     style-5
+  ### style-6     style-7     style-8     style-9     style-10
+  local dir="$HOME/.config/rofi/launchers/type-6"
+  local theme='style-7'
 
-## Run
-rofi \
-  -show drun \
-  -theme ${dir}/${theme}.rasi
+  ## Run
+  rofi \
+    -show drun \
+    -theme ${dir}/${theme}.rasi
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

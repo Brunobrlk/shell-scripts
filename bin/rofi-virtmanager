@@ -1,14 +1,39 @@
 #!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Depends on: https://github.com/adi1090x/rofi
+# Version: 1.0
+# Last Updated: 2025-12-19
 
-## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
-# Depends on: https://github.com/adi1090x/rofi
+set -euo pipefail
+IFS=$'\n\t'
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
 # Import Rofi Theme
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
-CHOICE=$(virsh list --all --name | awk 'NF' | rofi_cmd)
-[[ -z "$CHOICE" ]] && exit 0
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+launch_vm(){
+  local vm_name="$1"
+  virsh start "$vm_name"
+  virt-manager --connect qemu:///system --show-domain-console "$vm_name"
+}
 
-virsh start "$CHOICE"
-virt-manager --connect qemu:///system --show-domain-console "$CHOICE"
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  local choice=$(virsh list --all --name | awk 'NF' | rofi_cmd)
+  [[ -z "$choice" ]] && exit 0
+  launch_vm "$choice"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

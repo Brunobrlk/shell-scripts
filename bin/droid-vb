@@ -1,10 +1,59 @@
 #!/usr/bin/env bash
 # Last update: 2025-11-07
 
-set -e
+#!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description:
+# Version: 1.0
+# Last Updated: 2025-12-10
 
-# --- Config ---
-PROJECT_DIR="${1:-$(pwd)}"
-GRADLE_APP="$PROJECT_DIR/app/build.gradle.kts"
+set -euo pipefail
+IFS=$'\n\t'
 
-sed -i "/buildTypes {/i\    buildFeatures {\n        viewBinding = true\n    }\n" "$GRADLE_APP"
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+readonly PROJECT_DIR="${1:-$(pwd)}"
+readonly GRADLE_APP="$PROJECT_DIR/app/build.gradle.kts"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+ensure_args() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") <PROJECT_PATH>" >&2
+    return 1
+  fi
+}
+
+ensure_valid_project() {
+  local project_dir="$1"
+  if [[ ! -f "$project_dir/app/build.gradle.kts" ]]; then
+    echo "Invalid project: missing app/build.gradle.kts" >&2
+    return 1
+  fi
+}
+
+add_viewbinding_to_build() {
+  local gradle_file="$1"
+  if grep -q 'viewBinding = true' "$gradle_file"; then
+    echo "ViewBinding is already enabled" >&2
+    return 1
+  fi
+  sed -i "/buildTypes {/i\    buildFeatures {\n        viewBinding = true\n    }\n" "$gradle_file"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  ensure_args "$@" || exit 1
+  ensure_valid_project "$1" || exit 1
+  add_viewbinding_to_build "$GRADLE_APP" || exit 1
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

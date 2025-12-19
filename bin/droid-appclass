@@ -1,18 +1,73 @@
 #!/usr/bin/env bash
-# Last update: 2025-11-07
+# Author: Bruno Guimarães
+# Description:
+# Version: 1.0
+# Last Updated: 2025-12-10
 
-set -e
-# --- CONFIG ---
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-PROJECT_DIR="${1:-$(pwd)}"
+set -euo pipefail
+IFS=$'\n\t'
 
-PKG=$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')
-PKG_DIR=$(echo $PKG | sed 's/\./\//g')
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+readonly PROJECT_DIR="${1:-$(pwd)}"
+readonly PKG="$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')"
+readonly PKG_DIR="$(echo "$PKG" | sed 's/\./\//g')"
+readonly MANIFEST_FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
+readonly APPCLASS_FILE="$PROJECT_DIR/app/src/main/java/$PKG_DIR/CoreApplication.kt"
+readonly APPCLASS_TEMPLATE="$SCRIPT_DIR/templates/android/CoreApplication.kt"
 
-MANIFEST_FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
-APPLICATION_FILE="$PROJECT_DIR/app/src/main/java/$PKG_DIR/CoreApplication.kt"
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+ensure_args() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") <PROJECT_PATH>" >&2
+    return 1
+  fi
+}
 
-sed -i "/<application/ a\        android:name=\"\.CoreApplication\" " "$MANIFEST_FILE"
+ensure_valid_project() {
+  local project_dir="$1"
+  if [[ ! -f "$project_dir/app/build.gradle.kts" ]]; then
+    echo "Invalid project: missing app/build.gradle.kts" >&2
+    return 1
+  fi
+}
 
-export PKG
-envsubst <"$SCRIPT_DIR/templates/android/CoreApplication.kt" >"$APPLICATION_FILE"
+create_appclass() {
+  local target_file="$1"
+  local template="$2"
+  local pkg="$3"
+
+  if [[ -f "$target_file" ]]; then
+    echo "File already exists: $target_file" >&2
+    return 1
+  fi
+
+  env PKG="$pkg" envsubst <"$template" >"$target_file"
+}
+
+add_appclass_to_manifest() {
+  local manifest_file="$1"
+  if ! grep -q 'android:name="\.CoreApplication"' "$manifest_file"; then
+    sed -i '/<application/ a\        android:name="\.CoreApplication"' "$manifest_file"
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  ensure_args "$@" || exit 1
+  ensure_valid_project "$1" || exit 1
+  create_appclass "$APPCLASS_FILE" "$APPCLASS_TEMPLATE" "$PKG"
+  add_appclass_to_manifest "$MANIFEST_FILE"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

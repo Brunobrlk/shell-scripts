@@ -11,7 +11,7 @@ MSGS_FILE="$VALUES_FOLDER/strings_messages.xml"
 TITLES_FILE="$VALUES_FOLDER/strings_titles.xml"
 
 # Import Rofi Theme
-source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
 add_resource_line() {
   local FILE_PATH="$1"

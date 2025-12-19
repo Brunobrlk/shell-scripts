@@ -21,10 +21,35 @@ This will symlink all scripts in `bin/` to `~/.local/bin/`.
 - `random_wallpaper`: Set random wallpaper from folder
 - `vmsfolder`: Navigate to VM storage directory
 
-## Uninstallation
+## Uninstall
 
 ```bash
 ./uninstall.sh
 ```
 
 Removes all symlinks created during installation.
+# TODO
+[] Refactor scripts(Improve code)
+    [x] buildc
+    [x] droid-appclass
+    [] droid-gen-mappers
+    [] droid-mkapp
+    [] gen-debug-symbols
+    [] kvm-export-import
+    [] mint-clean
+    [] newscript
+    [] random-wallpaper
+    [] rofi-avdman
+    [] rofi-bookmarks
+    [] rofi-cheatsheet
+    [] rofi-clipboard
+    [] rofi-droid-deps
+    [] rofi-droid-perms
+    [] rofi-launcher
+    [] rofi-mpd
+    [] rofi-note
+    [] rofi-powermenu
+    [] rofi-virtmanager
+    [] vmsfolder
+    [x] install
+    [x] uninstall

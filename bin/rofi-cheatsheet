@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Depends on: https://github.com/adi1090x/rofi
+# Description:
 # Version: 1.0
-# Last Updated: 2025-12-19
+# Last Updated: 2025-12-09
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -10,11 +10,11 @@ IFS=$'\n\t'
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
-# Import Rofi Theme
+# Import rofi theme
 readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
-readonly NOTES_DIR="$HOME/.utils/Notes"
+readonly CHEATSHEET_DIR="$HOME/.utils/Cheatsheets"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
@@ -28,9 +28,9 @@ open_on_lvim() {
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
 main() {
-  local choice=$(ls ~/.utils/Notes | rofi_cmd)
+  local choice=$(ls "$CHEATSHEET_DIR" | rofi_cmd)
   [[ -z "$choice" ]] && exit 0
-  open_on_lvim "$NOTES_DIR/$choice"
+  open_on_lvim "$CHEATSHEET_DIR/$choice"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -1,16 +1,30 @@
 #!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Depends on: https://github.com/adi1090x/rofi
+# Version: 1.0
+# Last Updated: 2025-12-19
 
-## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
-# Depends on: https://github.com/adi1090x/rofi
+set -euo pipefail
+IFS=$'\n\t'
 
-# Import Rofi Theme
 # ──────────────────────────────────────────────────────────────────────────────
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-source "$SCRIPT_DIR/lib/rofi_cmd.sh"
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+# Import Rofi Theme
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
-CHOICE=$(emulator -list-avds | rofi_cmd)
-[[ -z "$CHOICE" ]] && exit 0
-emulator -avd "$CHOICE"
+main() {
+  local choice=$(emulator -list-avds | rofi_cmd)
+  [[ -z "$choice" ]] && exit 0
+  emulator -avd "$choice"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
