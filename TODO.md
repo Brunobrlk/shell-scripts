@@ -1,5 +1,4 @@
 # In Development
-- droid-mkapp
 
 # Working
 - droid-gen-mappers
@@ -17,6 +16,7 @@
 # Working and Clean
 - buildc
 - droid-appclass
+- droid-mkapp
 - droid-vb
 - rofi-avdman
 - rofi-bookmarks

@@ -42,8 +42,8 @@ create_appclass() {
   local pkg="$3"
 
   if [[ -f "$target_file" ]]; then
-    echo "File already exists: $target_file" >&2
-    return 1
+    echo "File already exists: $target_file - Skipping..."
+    return 0
   fi
 
   env PKG="$pkg" envsubst <"$template" >"$target_file"

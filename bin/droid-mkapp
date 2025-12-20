@@ -10,39 +10,77 @@ IFS=$'\n\t'
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
-readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 readonly PROJECT_DIR="${1:-$(pwd)}"
+readonly MAIN_DIR="$PROJECT_DIR/app/src/main"
 readonly PKG=$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')
 readonly PKG_DIR=$(printf "%s" "$PKG" | tr '.' '/')
-readonly MODULE_DIR="$PROJECT_DIR/app/src/main/java/$PKG_DIR"
-readonly ACTIVITY_TEMPLATE="$SCRIPT_DIR/templates/android/Activity.kt"
+readonly MODULE_DIR="$MAIN_DIR/java/$PKG_DIR"
+readonly ACTIVITY_CODE_TEMPLATE="$SCRIPT_DIR/templates/android/MainActivity.kt"
+readonly ACTIVITY_XML_TEMPLATE="$SCRIPT_DIR/templates/android/activity_main.xml"
+readonly FRAGMENT_CODE_TEMPLATE="$SCRIPT_DIR/templates/android/HomeFragment.kt"
+readonly FRAGMENT_XML_TEMPLATE="$SCRIPT_DIR/templates/android/fragment_home.xml"
+readonly RESOURCES_TEMPLATE="$SCRIPT_DIR/templates/android/resources.xml"
+readonly NAVIGATION_TEMPLATE="$SCRIPT_DIR/templates/android/navigation.xml"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
 # ──────────────────────────────────────────────────────────────────────────────
 setup_architecture(){
   local module_dir="$1"
+  local main_dir="${module_dir%/java/*}"
+
   mkdir -p "$module_dir/core/di" "$module_dir/core/startup" "$module_dir/core/lifecycle" "$module_dir/core/utils"
   mkdir -p "$module_dir/data/remote/services" "$module_dir/data/remote/utils" "$module_dir/data/remote/dtos" "$module_dir/data/mappers" "$module_dir/data/mediators"
   mkdir -p "$module_dir/data/local/database/daos" "$module_dir/data/local/database/entities" "$module_dir/data/local/database/utils" 
   mkdir -p "$module_dir/domain/models" "$module_dir/domain/repository"
   mkdir -p "$module_dir/ui"
+  mkdir -p "$main_dir/res/navigation"
 }
 
 add_main_activity(){
   local module_dir="$1"
 
-  local old_main_activity="$module_dir/MainActivity"
+  local old_main_activity="$module_dir/MainActivity.kt"
   [[ -f "$old_main_activity" ]] && rm "$old_main_activity"
 
-  local pkg=$(printf '%s' "$module_dir" | sed 's/.*java\/\(.*\)/\1/' | tr '/' '.')
+  local pkg=$(printf '%s' "${module_dir#*/java/}" | tr '/' '.')
+  local code_template="$2"
+  local target_file="$module_dir/ui/MainActivity.kt"
+  env PKG="$pkg" envsubst <"$code_template" >"$target_file"
+
+  # Add xml layout
+  local xml_template="$3"
+  local main_dir="${module_dir%/java/*}"
+  cp "$xml_template" "$main_dir/res/layout"
+}
+
+add_fragment(){
+  local module_dir="$1"
+
+  local pkg=$(printf '%s' "${module_dir#*/java/}" | tr '/' '.')
+  local code_template="$2"
+  local target_file="$module_dir/ui/HomeFragment.kt"
+  env PKG="$pkg" envsubst <"$code_template" >"$target_file"
+
+  local xml_template="$3"
+  local main_dir="${module_dir%/java/*}"
+  cp "$xml_template" "$main_dir/res/layout"
+}
+
+add_navigation(){
+  local main_dir="$1"
   local template="$2"
-  local target_file="$module_dir/ui/MainActivity"
-  env PKG="$pkg" envsubst <"$template" >"$target_file"
+  mkdir -p "$main_dir/res/navigation"
+  cp "$template" "$main_dir/res/navigation"
 }
 
 add_resource() {
-  local values_dir="$1"
+  local values_file="$1"
+  local template="$2"
+  local sample_value="$3"
+  cp "$template" "$values_file"
+  sed -i "/<application/ a\    $sample_value" "$values_file"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -52,7 +90,17 @@ main() {
   setup_architecture "$MODULE_DIR"
   "$SCRIPT_DIR/bin/droid-appclass" "$PROJECT_DIR"
   "$SCRIPT_DIR/bin/droid-vb" "$PROJECT_DIR"
-  add_main_activity "$MODULE_DIR" "$ACTIVITY_TEMPLATE"
+  add_main_activity "$MODULE_DIR" "$ACTIVITY_CODE_TEMPLATE" "$ACTIVITY_XML_TEMPLATE"
+  add_fragment "$MODULE_DIR" "$FRAGMENT_CODE_TEMPLATE" "$FRAGMENT_XML_TEMPLATE"
+  add_navigation "$MAIN_DIR" "$NAVIGATION_TEMPLATE"
+  add_resource "$MAIN_DIR/res/values/strings_accessibility.xml" "$RESOURCES_TEMPLATE" '<string name="desc_x">x</string>'
+  add_resource "$MAIN_DIR/res/values/strings_actions.xml" "$RESOURCES_TEMPLATE" '<string name="action_x">x</string>'
+  add_resource "$MAIN_DIR/res/values/strings_errors.xml" "$RESOURCES_TEMPLATE" '<string name="error_x">x</string>'
+  add_resource "$MAIN_DIR/res/values/strings_labels.xml" "$RESOURCES_TEMPLATE" '<string name="label_x">x</string>'
+  add_resource "$MAIN_DIR/res/values/strings_titles.xml" "$RESOURCES_TEMPLATE" '<string name="title_x">x</string>'
+  add_resource "$MAIN_DIR/res/values/strings_messages.xml" "$RESOURCES_TEMPLATE" '<string name="msg_x">x</string>'
+  add_resource "$MAIN_DIR/res/values/text_appearance.xml" "$RESOURCES_TEMPLATE" '<style name="" parent=""></style>'
+  add_resource "$MAIN_DIR/res/values/dimens.xml" "$RESOURCES_TEMPLATE" '<dimen name="">16dp</dimen>'
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
