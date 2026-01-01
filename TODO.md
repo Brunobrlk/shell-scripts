@@ -4,9 +4,7 @@
 - droid-gen-mappers
 - generate-debug-symbols
 - kvm-export-import
-- mint-clean
 - newscript
-- random-wallpaper
 - rofi-droid-deps
 - rofi-droid-perms
 - rofi-mpd
@@ -18,6 +16,8 @@
 - droid-appclass
 - droid-mkapp
 - droid-vb
+- mint-clean
+- random-wallpaper
 - rofi-avdman
 - rofi-bookmarks
 - rofi-cheatsheet

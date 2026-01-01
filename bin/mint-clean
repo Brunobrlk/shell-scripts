@@ -1,18 +1,34 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Brief description of what the script does
+# Description:
 # Version: 1.0
-# Last Updated: Date
+# Last Updated: 2026-01-01
 
-# Following Article: https://easylinuxtipsproject.blogspot.com/p/clean-mint.html#ID1
-# Not complete
+set -euo pipefail
+IFS=$'\n\t'
 
-# Empty trash
-rm -rf ~/.local/share/Trash/*
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+empty_trash() {
+  rm -rf "$HOME/.local/share/Trash/"*
+}
 
-# Clear thumbnail cache
-rm -rfv ~/.cache/thumbnails
+clear_caches() {
+  # Clear thumbnail cache
+  rm -rfv "$HOME/.cache/thumbnails"
+}
 
-# Exit with success status
-exit 0
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  empty_trash
+  clear_caches
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

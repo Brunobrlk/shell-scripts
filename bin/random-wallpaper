@@ -1,49 +1,42 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Set a random wallpaper to all monitors using feh
-# Version: 1.1
-# Last Updated: 2025-09-22
+# Description:
+# Version: 1.0
+# Last Updated: 2026-01-01
 
-DEFAULT_DIR="$HOME/Pictures/Wallpapers/"
-DIR="$DEFAULT_DIR"
+set -euo pipefail
+IFS=$'\n\t'
 
-# Parse options
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-  --folder | -f)
-    if [[ -n "$2" && -d "$2" ]]; then
-      DIR="$2"
-      shift 2
-      continue
-    else
-      echo "Error: --folder requires a valid directory." >&2
-      exit 1
-    fi
-    ;;
-  --help | -h)
-    echo "Usage: $0 [--folder DIR]"
-    echo
-    echo "Options:"
-    echo "  -f, --folder DIR   Set custom wallpaper folder (default: $DEFAULT_DIR)"
-    echo "  -h, --help         Show this help message"
-    exit 0
-    ;;
-  *)
-    echo "Unknown option: $1" >&2
-    echo "Use --help for usage information." >&2
-    exit 1
-    ;;
-  esac
-done
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+readonly WALLPAPER_DIR="$HOME/Pictures/Wallpapers/"
 
-# Pick random wallpaper
-WALLPAPER=$(find "$DIR" -type f | shuf -n 1)
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+get_random_file_from() {
+  local dir="$1"
+  find "$dir" -type f | shuf -n 1
+}
 
-if [[ -z "$WALLPAPER" ]]; then
-  echo "Error: No files found in $DIR" >&2
-  exit 1
-fi
+set_wallpaper(){
+  local file="$1"
 
-# Set wallpaper
-feh --bg-fill --no-fehbg "$WALLPAPER"
+  # Set wallpaper using feh
+  feh --bg-fill --no-fehbg "$wallpaper"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  local wallpaper="$(get_random_file_from "$WALLPAPER_DIR")"
+  set_wallpaper "$wallpaper"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
