@@ -1,40 +1,25 @@
 #!/usr/bin/env bash
-# Last update: 2025-11-07
+# Author: Bruno Guimarães
+# Description: Add permission to android apps via rofi
+# Version: 1.0
+# Last Updated: 2026-01-02
 
-set -e
-# --- CONFIG ---
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-PROJECT_DIR="${1:-$(pwd)}"
-MANIFEST_FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
-VALUES_FOLDER="$PROJECT_DIR/app/src/main/res/values"
-MSGS_FILE="$VALUES_FOLDER/strings_messages.xml"
-TITLES_FILE="$VALUES_FOLDER/strings_titles.xml"
+set -euo pipefail
+IFS=$'\n\t'
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
 # Import Rofi Theme
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
-add_resource_line() {
-  local FILE_PATH="$1"
-  local STRING="$2"
-
-  # 1. Create file with default content if it doesn't exist
-  if [ ! -f "$FILE_PATH" ]; then
-    envsubst <"$SCRIPT_DIR/templates/android/resources.xml" >"$FILE_PATH"
-  fi
-
-  # 2. Insert the line before </resources> with 4 spaces indentation
-  sed -i "/<\/resources>/ i\    $STRING" "$FILE_PATH"
-}
-
-add_manifest_permission() {
-  local STRING="$1"
-
-  # Insert the line before </resources> with 4 spaces indentation
-  sed -i "/<application/ i\    <uses-permission android:name=\"android\.permission\.$STRING\"\/>" "$MANIFEST_FILE"
-}
-
-# --- LIBRARY LIST WITH SUBJECT-SPECIFIC ICONS ---
-LIB_CHOICES=(
+readonly PROJECT_DIR="${1:-$(pwd)}"
+readonly MANIFEST_FILE="$PROJECT_DIR/app/src/main/AndroidManifest.xml"
+readonly VALUES_FOLDER="$PROJECT_DIR/app/src/main/res/values"
+readonly MSGS_FILE="$VALUES_FOLDER/strings_messages.xml"
+readonly TITLES_FILE="$VALUES_FOLDER/strings_titles.xml"
+readonly LIB_CHOICES=(
   "📷 Camera"
   "📍 Location"
   "💾 Storage"
@@ -49,77 +34,111 @@ LIB_CHOICES=(
   "⚡ Wake Lock"
 )
 
-CHOICE=$(printf "%s\n" "${LIB_CHOICES[@]}" | rofi_cmd)
-[[ -z "$CHOICE" ]] && exit 0
-CHOICE="${CHOICE##* }"
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+add_resource_line() {
+  local file_path="$1"
+  local line="$2"
 
-# --- PERMISSIONS ---
-case "$CHOICE" in
-"Camera")
-  add_resource_line $TITLES_FILE "<string name=\"title_camera_permission\">Camera Permission</string>"
-  add_resource_line $MSGS_FILE "<string name=\"msg_camera_permission\">The app needs camera permission to take photos.</string>"
-  add_manifest_permission "CAMERA"
-  ;;
+  # 1. Create file with default content if it doesn't exist
+  if [ ! -f "$file_path" ]; then
+    envsubst <"$SCRIPT_DIR/templates/android/resources.xml" >"$file_path"
+  fi
 
-"Location")
-  add_resource_line $TITLES_FILE "<string name=\"title_location_permission\">Location Permission</string>"
-  add_resource_line $MSGS_FILE "<string name=\"msg_location_permission\">The app needs location permission to provide location-based services.</string>"
-  add_manifest_permission "ACCESS_FINE_LOCATION"
-  add_manifest_permission "ACCESS_COARSE_LOCATION"
-  ;;
+  # 2. Insert the line before </resources> with 4 spaces indentation
+  sed -i "/<\/resources>/ i\    $line" "$file_path"
+}
 
-"Storage")
-  add_resource_line $TITLES_FILE "<string name=\"title_storage_permission\">Storage Permission</string>"
-  add_resource_line $MSGS_FILE "<string name=\"msg_storage_permission\">The app needs storage permission to read and save files.</string>"
-  add_manifest_permission "READ_EXTERNAL_STORAGE"
-  add_manifest_permission "WRITE_EXTERNAL_STORAGE"
-  ;;
+add_manifest_permission() {
+  local manifest_file="$1"
+  local perm_str="$2"
 
-"Internet")
-  add_manifest_permission "INTERNET"
-  add_manifest_permission "ACCESS_NETWORK_STATE"
-  ;;
+  # Insert the line before </resources> with 4 spaces indentation
+  sed -i "/<application/ i\    <uses-permission android:name=\"android\.permission\.$perm_str\"\/>" "$manifest_file"
+}
 
-"Microphone")
-  add_resource_line $TITLES_FILE "<string name=\"title_microphone_permission\">Microphone Permission</string>"
-  add_resource_line $MSGS_FILE "<string name=\"msg_microphone_permission\">The app needs microphone permission to record audio.</string>"
-  add_manifest_permission "RECORD_AUDIO"
-  ;;
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  local choice=$(printf "%s\n" "${LIB_CHOICES[@]}" | rofi_cmd)
+  [[ -z "$choice" ]] && exit 0
+  choice="${choice##* }"
 
-"Phone")
-  add_resource_line $TITLES_FILE "<string name=\"title_phone_permission\">Phone Permission</string>"
-  add_resource_line $MSGS_FILE "<string name=\"msg_phone_permission\">The app needs phone permission to manage calls.</string>"
-  add_manifest_permission "READ_PHONE_STATE"
-  ;;
+  case "$choice" in
+  "Camera")
+    add_resource_line $TITLES_FILE "<string name=\"title_camera_permission\">Camera Permission</string>"
+    add_resource_line $MSGS_FILE "<string name=\"msg_camera_permission\">The app needs camera permission to take photos.</string>"
+    add_manifest_permission "$MANIFEST_FILE" "CAMERA"
+    ;;
 
-"Contacts")
-  add_resource_line $TITLES_FILE "<string name=\"title_contacts_permission\">Contacts Permission</string>"
-  add_resource_line $MSGS_FILE "<string name=\"msg_contacts_permission\">The app needs contacts permission to access your contacts.</string>"
-  add_manifest_permission "READ_CONTACTS"
-  add_manifest_permission "WRITE_CONTACTS"
-  ;;
+  "Location")
+    add_resource_line $TITLES_FILE "<string name=\"title_location_permission\">Location Permission</string>"
+    add_resource_line $MSGS_FILE "<string name=\"msg_location_permission\">The app needs location permission to provide location-based services.</string>"
+    add_manifest_permission "$MANIFEST_FILE" "ACCESS_FINE_LOCATION"
+    add_manifest_permission "$MANIFEST_FILE" "ACCESS_COARSE_LOCATION"
+    ;;
 
-"Notifications")
-  add_resource_line $TITLES_FILE "<string name=\"title_notification_permission\">Notification Permission</string>"
-  add_resource_line $MSGS_FILE "<string name=\"msg_notification_permission\">The app needs permission to send notifications.</string>"
-  add_manifest_permission "POST_NOTIFICATIONS"
-  ;;
+  "Storage")
+    add_resource_line $TITLES_FILE "<string name=\"title_storage_permission\">Storage Permission</string>"
+    add_resource_line $MSGS_FILE "<string name=\"msg_storage_permission\">The app needs storage permission to read and save files.</string>"
+    add_manifest_permission "$MANIFEST_FILE" "READ_EXTERNAL_STORAGE"
+    add_manifest_permission "$MANIFEST_FILE" "WRITE_EXTERNAL_STORAGE"
+    ;;
 
-"Bluetooth")
-  add_manifest_permission "BLUETOOTH"
-  add_manifest_permission "BLUETOOTH_CONNECT"
-  add_manifest_permission "BLUETOOTH_SCAN"
-  ;;
+  "Internet")
+    add_manifest_permission "$MANIFEST_FILE" "INTERNET"
+    add_manifest_permission "$MANIFEST_FILE" "ACCESS_NETWORK_STATE"
+    ;;
 
-"NFC")
-  add_manifest_permission "NFC"
-  ;;
+  "Microphone")
+    add_resource_line $TITLES_FILE "<string name=\"title_microphone_permission\">Microphone Permission</string>"
+    add_resource_line $MSGS_FILE "<string name=\"msg_microphone_permission\">The app needs microphone permission to record audio.</string>"
+    add_manifest_permission "$MANIFEST_FILE" "RECORD_AUDIO"
+    ;;
 
-"Sensors")
-  add_manifest_permission "BODY_SENSORS"
-  ;;
+  "Phone")
+    add_resource_line $TITLES_FILE "<string name=\"title_phone_permission\">Phone Permission</string>"
+    add_resource_line $MSGS_FILE "<string name=\"msg_phone_permission\">The app needs phone permission to manage calls.</string>"
+    add_manifest_permission "$MANIFEST_FILE" "READ_PHONE_STATE"
+    ;;
 
-"Wake")
-  add_manifest_permission "WAKE_LOCK"
-  ;;
-esac
+  "Contacts")
+    add_resource_line $TITLES_FILE "<string name=\"title_contacts_permission\">Contacts Permission</string>"
+    add_resource_line $MSGS_FILE "<string name=\"msg_contacts_permission\">The app needs contacts permission to access your contacts.</string>"
+    add_manifest_permission "$MANIFEST_FILE" "READ_CONTACTS"
+    add_manifest_permission "$MANIFEST_FILE" "WRITE_CONTACTS"
+    ;;
+
+  "Notifications")
+    add_resource_line $TITLES_FILE "<string name=\"title_notification_permission\">Notification Permission</string>"
+    add_resource_line $MSGS_FILE "<string name=\"msg_notification_permission\">The app needs permission to send notifications.</string>"
+    add_manifest_permission "$MANIFEST_FILE" "POST_NOTIFICATIONS"
+    ;;
+
+  "Bluetooth")
+    add_manifest_permission "$MANIFEST_FILE" "BLUETOOTH"
+    add_manifest_permission "$MANIFEST_FILE" "BLUETOOTH_CONNECT"
+    add_manifest_permission "$MANIFEST_FILE" "BLUETOOTH_SCAN"
+    ;;
+
+  "NFC")
+    add_manifest_permission "$MANIFEST_FILE" "NFC"
+    ;;
+
+  "Sensors")
+    add_manifest_permission "$MANIFEST_FILE" "BODY_SENSORS"
+    ;;
+
+  "Wake")
+    add_manifest_permission "$MANIFEST_FILE" "WAKE_LOCK"
+    ;;
+  esac
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
