@@ -1,31 +1,39 @@
 #!/usr/bin/env bash
-# Last update: 2025-11-07
+# Author: Bruno Guimarães
+# Description:
+# Version: 1.0
+# Last Updated: 2026-01-04
 
-set -e
+set -euo pipefail
+IFS=$'\n\t'
 
-# --- Config ---
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
-PROJECT_DIR="${1:-$(pwd)}"
-PKG=$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')
-PKG_DIR=$(echo "$PKG" | sed 's/\./\//g')
-MAIN_DIR="$PROJECT_DIR/app/src/main/java/$PKG_DIR"
-MODELS_DIR="$MAIN_DIR/domain/models"
-OUTPUT_DIR="$MAIN_DIR/data/genbrlk/mappers"
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+readonly PROJECT_DIR="${1:-$(pwd)}"
+readonly PKG=$(grep 'namespace' "$PROJECT_DIR/app/build.gradle.kts" | sed -E 's/.*"([^"]+)".*/\1/')
+readonly PKG_DIR=$(echo "$PKG" | sed 's/\./\//g')
+readonly MAIN_DIR="$PROJECT_DIR/app/src/main/java/$PKG_DIR"
+readonly MODELS_DIR="$MAIN_DIR/domain/models"
+readonly OUTPUT_DIR="$MAIN_DIR/data/genbrlk/mappers"
 
-# --- Variables ---
-files=()
-classes=()
-
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
 gen_dto_to_domain() {
+  local output_dir="$1"
+  local pkg="$2"
+  local -n files_ref=$3
+  local -n classes_ref=$4
 
-  mkdir -p "$OUTPUT_DIR"
+  mkdir -p "$output_dir"
 
-  for i in "${!classes[@]}"; do
-    CLASS="${classes[$i]}"
-    file="${files[$i]}"
-
-    # Reset for each class
-    PROPS_MAPPED=""
+  for i in "${!classes_ref[@]}"; do
+    local class="${classes_ref[$i]}"
+    local file="${files_ref[$i]}"
+    local props_mapped=""
+    local props=()
 
     # Extract Kotlin props into array
     readarray -t props < <(
@@ -34,28 +42,50 @@ gen_dto_to_domain() {
 
     # Build property mappings (REAL newlines)
     for prop in "${props[@]}"; do
-      printf -v PROPS_MAPPED "%s    %s = this.%s,\n" "$PROPS_MAPPED" "$prop" "$prop"
+      printf -v props_mapped "%s    %s = this.%s,\n" "$props_mapped" "$prop" "$prop"
     done
 
-    export PKG CLASS PROPS_MAPPED
-    envsubst <"$SCRIPT_DIR/templates/android/Mapper.kt" >"$OUTPUT_DIR/${CLASS}Mapper.kt"
+    export pkg class props_mapped
+    envsubst <"$SCRIPT_DIR/templates/android/Mapper.kt" >"$output_dir/${class}Mapper.kt"
 
-    echo "Generated mapper: ${CLASS}Mapper.kt"
+    echo "Generated mapper: ${class}Mapper.kt"
   done
 }
 
-# Collect files and class names (skip ListItem models)
-for file in "$MODELS_DIR"/*; do
-  base="${file##*/}"
+get_model_files(){
+  local models_dir="$1"
+  local -n files_ref=$2
+  local -n classes_ref=$3
+  
+  # Collect files and class names (skip ListItem models)
+  for file in "$models_dir"/*; do
+    local base="${file##*/}"
 
-  [[ "$base" == *ListItem* ]] && continue
+    [[ "$base" == *ListItem* ]] && continue
 
-  files+=("$file")
-  name="${base%.*}"
-  classes+=("$name")
-done
+    files_ref+=("$file")
+    local name="${base%.*}"
+    classes_ref+=("$name")
+  done
 
-echo "Found files: ${files[*]}"
+  echo "Found files: ${files_ref[*]}"
+}
 
-gen_dto_to_domain
-echo "finished"
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  local files=()
+  local classes=()
+
+  get_model_files "$MODELS_DIR" files classes
+
+  gen_dto_to_domain "$OUTPUT_DIR" "$PKG" files classes
+  echo "finished"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
