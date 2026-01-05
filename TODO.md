@@ -1,19 +1,16 @@
 # In Development
 
 # Working
-- droid-gen-mappers
 - generate-debug-symbols
 - kvm-export-import
 - newscript
-- rofi-droid-deps
-- rofi-droid-perms
 - rofi-mpd
-- rofi-powermenu
 - vmsfolder
 
 # Working and Clean
 - buildc
 - droid-appclass
+- droid-gen-mappers
 - droid-mkapp
 - droid-vb
 - mint-clean
@@ -21,8 +18,11 @@
 - rofi-avdman
 - rofi-bookmarks
 - rofi-cheatsheet
+- rofi-droid-deps
+- rofi-droid-perms
 - rofi-clipboard
 - rofi-docker
 - rofi-launcher
 - rofi-note
+- rofi-powermenu
 - rofi-virtmanager

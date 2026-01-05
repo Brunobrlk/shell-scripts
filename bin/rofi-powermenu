@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description:
+# Version: 1.0
+# Last Updated: 2026-01-05
 
-## Author  : Bruno Guimarães - fork from -> Aditya Shakya (adi1090x)
-# Depends on: https://github.com/adi1090x/rofi
+set -euo pipefail
+IFS=$'\n\t'
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
 # Import Theme
-type="$HOME/.config/rofi/applets/type-1"
-style='style-3.rasi'
-theme="$type/$style"
-
-# Theme Elements
-prompt="$(hostname)"
-mesg="Uptime : $(uptime -p | sed -e 's/up //g')"
-list_col='1'
-list_row='6'
+readonly TYPE="$HOME/.config/rofi/applets/type-1"
+readonly STYLE='style-3.rasi'
+readonly THEME="$TYPE/$STYLE"
 
 declare -A MENU=(
   [" Lock"]="betterlockscreen -l"
@@ -23,8 +24,17 @@ declare -A MENU=(
   [" Shutdown"]="systemctl poweroff"
 )
 
-# Rofi CMD
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
 rofi_cmd() {
+  local theme="$1"
+  # Theme Elements
+  local prompt="$(hostname)"
+  local mesg="Uptime : $(uptime -p | sed -e 's/up //g')"
+  local list_col='1'
+  local list_row='6'
+
   rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
     -theme-str 'textbox-prompt-colon {str: "";}' \
     -dmenu \
@@ -36,6 +46,7 @@ rofi_cmd() {
 
 # Confirmation CMD
 confirm_cmd() {
+  local theme="$1"
   rofi -theme-str 'window {location: center; anchor: center; fullscreen: false; width: 350px;}' \
     -theme-str 'mainbox {orientation: vertical; children: [ "message", "listview" ];}' \
     -theme-str 'listview {columns: 2; lines: 1;}' \
@@ -49,15 +60,26 @@ confirm_cmd() {
 
 # Confirm and execute
 confirm_run() {
-  selected="$(echo -e "yes\nno" | confirm_cmd)"
+  selected="$(echo -e "yes\nno" | confirm_cmd "$THEME" )"
   if [[ "$selected" == "yes" ]]; then
     eval "$1"
   else
-    exit
+    return 1
   fi
 }
 
-CHOICE=$(printf "%s\n" "${!MENU[@]}" | rofi_cmd)
-[[ -z "$CHOICE" ]] && exit 0
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  local choice=$(printf "%s\n" "${!MENU[@]}" | rofi_cmd "$THEME" )
+  [[ -z "$choice" ]] && exit 0
 
-confirm_run "${MENU[$CHOICE]}"
+  confirm_run "${MENU[$choice]}"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
