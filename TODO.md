@@ -1,7 +1,6 @@
 # In Development
 
 # Working
-- generate-debug-symbols
 - kvm-export-import
 - newscript
 - rofi-mpd
@@ -13,6 +12,7 @@
 - droid-gen-mappers
 - droid-mkapp
 - droid-vb
+- generate-debug-symbols
 - mint-clean
 - random-wallpaper
 - rofi-avdman

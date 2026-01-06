@@ -1,40 +1,65 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Zips native symbols (for release builds) and outputs them next to the APK/AAB
-# Version: 1.1
-# Last Updated: 2025-11-13
+# Description:
+# Version: 1.0
+# Last Updated: 2026-01-06
 
-set -e # stop on first error
+set -euo pipefail
+IFS=$'\n\t'
 
-# Verify project path
-[[ -z "$1" ]] && {
-  echo "Usage: $0 <project_root>"
-  exit 1
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+readonly PROJECT_DIR="$1"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+ensure_args() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") <PROJECT_PATH>" >&2
+    return 1
+  fi
 }
 
-projectdir="$1"
+zip_native_symbols(){
+  local project_dir="$1"
 
-# Paths
-symbols_dir="${projectdir}/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
-output_dir="${projectdir}/app/release"
+  # Paths
+  local symbols_dir="${project_dir}/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
+  local output_dir="${project_dir}/app/release"
 
-# Dynamic filename (date-based)
-date_str=$(date +%Y%m%d)
-output_zip="${output_dir}/zip_symbols_${date_str}.zip"
+  # Dynamic filename (date-based)
+  local date_str=$(date +%Y%m%d)
+  local output_zip="${output_dir}/zip_symbols_${date_str}.zip"
 
-# Ensure the symbols directory exists
-if [[ ! -d "$symbols_dir" ]]; then
-  echo "Error: Symbols directory not found at: $symbols_dir"
-  exit 1
-fi
+  # Ensure the symbols directory exists
+  if [[ ! -d "$symbols_dir" ]]; then
+    echo "Error: Symbols directory not found at: $symbols_dir" >&2
+    return 1
+  fi
 
-# Ensure output directory exists
-mkdir -p "$output_dir"
+  # Ensure output directory exists
+  mkdir -p "$output_dir"
 
-# Create the zip file
-echo "Zipping native symbols..."
-(cd "$symbols_dir" && zip -r "$output_zip" . >/dev/null)
+  # Create the zip file
+  echo "Zipping native symbols..."
+  (cd "$symbols_dir" && zip -r "$output_zip" . >/dev/null)
 
-echo "✅ Symbols zipped successfully!"
-echo "📦 Output: $output_zip"
+  echo "✅ Symbols zipped successfully!"
+  echo "📦 Output: $output_zip"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  ensure_args "$@" || exit 1
+  zip_native_symbols "$PROJECT_DIR" || exit 1
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

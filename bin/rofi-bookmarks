@@ -18,6 +18,8 @@ declare -A MENU=(
   [" LinkedIn"]="https://www.linkedin.com/feed/"
   [" LinkedIn Profile"]="https://www.linkedin.com/in/brunoguimaraesdev/"
 
+  ["󰣇 ArchWiki"]="https://wiki.archlinux.org/title/Main_page"
+
   ["󰦆 M3 Docs"]="https://github.com/material-components/material-components-android/tree/master/docs/components"
   [" Figma"]="https://www.figma.com/files/team/1436147951820565290/recents-and-sharing?fuid=1436147949753610369"
 
