@@ -1,101 +1,66 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Share folder between host and virtual machine
-# Version: 1.0
-# Last Updated: 09/03/2024
+# Description: Mount a VM shared folder (current session only)
+# Version: 1.1
+# Last Updated: 2026-01-08
 
-# Help variables
-path_to_script="/usr/local/bin/vmsfolder"
+set -euo pipefail
+IFS=$'\n\t'
 
-# Function to display script usage information
-usage() {
-  cat <<EOF
-    $(basename $0) - Automation of the process of sharing folder between host and vm
-
-    Description:
-    $(basename $0) is a script for automate the process of mounting shared folders into the virtual machine
-
-    Usage:
-    $(basename $0) [options] <source_folder> <destination_folder>
-
-    Options:
-    -h, --help          Display this help message and exit
-    -s, --save          Save the current configuration to system initialization
-
-    Arguments:
-    <source_folder>            The folder where you've set the host machine shared folder
-    <destination_folder>       The folder where the system will be sharing the files, allowing access them from the virtual machine
-
-    Examples:
-    $(basename $0) /shareddata /home/my_user/vm_folder
-EOF
-  exit 0
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+ensure_args() {
+  if [[ $# -ne 2 ]]; then
+    echo "Usage: vmsfolder <source_folder> <destination_folder>" >&2
+    exit 1
+  fi
 }
 
-# Function to mount shared folder in system initialization
-start_with_the_system() {
-  service_name="mount_$(basename $source_folder).service"
-  echo $service_name
-  echo $source_folder
-  echo $destination_folder
-  echo "mount_$(basename $source_folder).service"
-  cat <<EOF >/etc/systemd/system/$service_name
-    [Unit]
-    Description=Start vmsfolder on system startup
-
-    [Service]
-    Type=oneshot
-    ExecStart=$path_to_script $source_folder $destination_folder
-
-    [Install]
-    WantedBy=multi-user.target
-EOF
-
-  echo "$SUDO_USER ALL=(ALL) NOPASSWD: $path_to_script $source_folder $destination_folder" >>/etc/sudoers
-
-  systemctl daemon-reload
-
-  systemctl enable $service_name
+ensure_mountpoint() {
+  local dest="$1"
+  if [[ ! -d "$dest" ]]; then
+    mkdir -p "$dest"
+  fi
 }
 
-# Parse command-line options
-while [[ $# -gt 0 ]]; do
-  case $1 in
-  -h | --help)
-    usage
-    ;;
-  -s | --save)
-    SAVE=true
-    ;;
-  -*)
-    echo "Error: Unknown option: $1"
-    usage
-    ;;
-  *)
-    break
-    ;;
-  esac
-  shift
-done
+is_mounted() {
+  local dest="$1"
+  mountpoint -q "$dest"
+}
 
-# Check if the correct number of arguments is provided
-if [ $# -ne 2 ]; then
-  echo "Error: Incorrect number of arguments. Use -h or --help for usage information."
-  exit 1
-fi
+mount_shared() {
+  local source="$1"
+  local dest="$2"
 
-# Get the argument from the command-line argument
-source_folder="$1"
-destination_folder="$2"
+  if is_mounted "$dest"; then
+    echo "Already mounted: $dest"
+    return 0
+  fi
 
-if [ -v SAVE ]; then
-  start_with_the_system
-fi
+  echo "Mounting '$source' → '$dest'"
 
-# Create destination folder if not exists and mount into it
-mkdir -p $destination_folder
-sudo mount -t 9p -o trans=virtio $source_folder $destination_folder
+  if [[ "$EUID" -eq 0 ]]; then
+    mount -t 9p -o trans=virtio "$source" "$dest"
+  else
+    sudo mount -t 9p -o trans=virtio "$source" "$dest"
+  fi
+}
 
-# Exit with success status
-exit 0
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  ensure_args "$@"
+
+  local source_folder="$1"
+  local destination_folder="$2"
+
+  ensure_mountpoint "$destination_folder"
+  mount_shared "$source_folder" "$destination_folder"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

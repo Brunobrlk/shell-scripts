@@ -3,8 +3,6 @@
 # Working
 - kvm-export-import
 - newscript
-- rofi-mpd
-- vmsfolder
 
 # Working and Clean
 - buildc
@@ -23,6 +21,8 @@
 - rofi-clipboard
 - rofi-docker
 - rofi-launcher
+- rofi-mpd
 - rofi-note
 - rofi-powermenu
 - rofi-virtmanager
+- vmsfolder
