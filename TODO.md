@@ -1,8 +1,6 @@
 # In Development
 
 # Working
-- kvm-export-import
-- newscript
 
 # Working and Clean
 - buildc
