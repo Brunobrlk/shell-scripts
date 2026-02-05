@@ -19,7 +19,7 @@ delete_scripts_in_dir(){
   fi
 
   for file in "$target_dir"/*; do
-    local resolved_file="$(readlink -f "$file")"
+    local resolved_file="$(readlink "$file")"
 
     if [[ "$resolved_file" == *"/shell-scripts/bin/"* ]]; then
       rm "$file" || echo "Failed to delete: $file" >&2
