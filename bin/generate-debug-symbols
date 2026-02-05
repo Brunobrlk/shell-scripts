@@ -7,6 +7,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
+logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
@@ -35,7 +38,7 @@ zip_native_symbols(){
 
   # Ensure the symbols directory exists
   if [[ ! -d "$symbols_dir" ]]; then
-    echo "Error: Symbols directory not found at: $symbols_dir" >&2
+    loge "Error: Symbols directory not found at: $symbols_dir" >&2
     return 1
   fi
 
@@ -43,11 +46,10 @@ zip_native_symbols(){
   mkdir -p "$output_dir"
 
   # Create the zip file
-  echo "Zipping native symbols..."
+  logi "Zipping native symbols..."
   (cd "$symbols_dir" && zip -r "$output_zip" . >/dev/null)
 
-  echo "✅ Symbols zipped successfully!"
-  echo "📦 Output: $output_zip"
+  logs "Symbols zipped into: $output_zip!"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -56,6 +58,7 @@ zip_native_symbols(){
 main() {
   ensure_args "$@" || exit 1
   zip_native_symbols "$PROJECT_DIR" || exit 1
+  logs "Debug symbols successfully generated"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

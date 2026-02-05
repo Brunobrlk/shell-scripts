@@ -29,7 +29,7 @@ ensure_args() {
 ensure_valid_project() {
   local project_dir="$1"
   if [[ ! -f "$project_dir/app/build.gradle.kts" ]]; then
-    echo "Invalid project: missing app/build.gradle.kts" >&2
+    loge "Invalid project: missing app/build.gradle.kts" >&2
     return 1
   fi
 }
@@ -37,7 +37,7 @@ ensure_valid_project() {
 add_viewbinding_to_build() {
   local gradle_file="$1"
   if grep -q 'viewBinding = true' "$gradle_file"; then
-    echo "ViewBinding is already enabled - Skipping..."
+    logi "ViewBinding is already enabled - Skipping..."
     return 0
   fi
   sed -i "/buildTypes {/i\    buildFeatures {\n        viewBinding = true\n    }\n" "$gradle_file"
@@ -50,6 +50,8 @@ main() {
   ensure_args "$@" || exit 1
   ensure_valid_project "$1" || exit 1
   add_viewbinding_to_build "$GRADLE_APP"
+
+  logs "ViewBinding successfully enabled"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

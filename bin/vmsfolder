@@ -34,11 +34,11 @@ mount_shared() {
   local dest="$2"
 
   if is_mounted "$dest"; then
-    echo "Already mounted: $dest"
+    logi "Already mounted: $dest"
     return 0
   fi
 
-  echo "Mounting '$source' → '$dest'"
+  logi "Mounting '$source' → '$dest'"
 
   if [[ "$EUID" -eq 0 ]]; then
     mount -t 9p -o trans=virtio "$source" "$dest"
@@ -58,6 +58,8 @@ main() {
 
   ensure_mountpoint "$destination_folder"
   mount_shared "$source_folder" "$destination_folder"
+
+  logs "Folder successfully mounted"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

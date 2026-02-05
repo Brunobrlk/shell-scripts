@@ -7,6 +7,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
+loge() { printf '\033[0;31m[BRLK ERROR]\033[0m - %s\n' "$1" >&2; }
+logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
@@ -31,7 +35,7 @@ ensure_args() {
 ensure_valid_project() {
   local project_dir="$1"
   if [[ ! -f "$project_dir/app/build.gradle.kts" ]]; then
-    echo "Invalid project: missing app/build.gradle.kts" >&2
+    loge "Invalid project: missing app/build.gradle.kts" >&2
     return 1
   fi
 }
@@ -42,7 +46,7 @@ create_appclass() {
   local pkg="$3"
 
   if [[ -f "$target_file" ]]; then
-    echo "File already exists: $target_file - Skipping..."
+    logi "File already exists: $target_file - Skipping..."
     return 0
   fi
 
@@ -64,6 +68,7 @@ main() {
   ensure_valid_project "$1" || exit 1
   create_appclass "$APPCLASS_FILE" "$APPCLASS_TEMPLATE" "$PKG"
   add_appclass_to_manifest "$MANIFEST_FILE"
+  logs "Application Class was successfully generated"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

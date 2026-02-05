@@ -7,6 +7,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
+logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
@@ -48,7 +51,7 @@ gen_dto_to_domain() {
     export pkg class props_mapped
     envsubst <"$SCRIPT_DIR/templates/android/Mapper.kt" >"$output_dir/${class}Mapper.kt"
 
-    echo "Generated mapper: ${class}Mapper.kt"
+    logi "Generated mapper: ${class}Mapper.kt"
   done
 }
 
@@ -68,7 +71,7 @@ get_model_files(){
     classes_ref+=("$name")
   done
 
-  echo "Found files: ${files_ref[*]}"
+  logi "Found files: ${files_ref[*]}"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -81,7 +84,8 @@ main() {
   get_model_files "$MODELS_DIR" files classes
 
   gen_dto_to_domain "$OUTPUT_DIR" "$PKG" files classes
-  echo "finished"
+
+  logs "Mappers were successfully generated"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

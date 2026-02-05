@@ -7,6 +7,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
+logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
 # ──────────────────────────────────────────────────────────────────────────────
@@ -23,11 +26,11 @@ build_and_execute() {
   local base_name="$(basename "$file")"
   local output_name="${base_name%.*}"
 
-  echo "Compiling program.."
+  logi "Compiling program.."
   # Build the C program
   cc -Wall -Wextra -pedantic -o "$output_name" "$file"
 
-  echo "Launching program.."
+  logi "Launching program.."
   # Run it
   "./$output_name"
 }

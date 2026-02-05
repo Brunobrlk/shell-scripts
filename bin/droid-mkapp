@@ -7,6 +7,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
+logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
@@ -36,6 +39,7 @@ setup_architecture(){
   mkdir -p "$module_dir/domain/models" "$module_dir/domain/repository"
   mkdir -p "$module_dir/ui"
   mkdir -p "$main_dir/res/navigation"
+  logi "Architecture created: /core, /data(local, remote, mappers), /ui, /domain"
 }
 
 add_main_activity(){
@@ -53,6 +57,8 @@ add_main_activity(){
   local xml_template="$3"
   local main_dir="${module_dir%/java/*}"
   cp "$xml_template" "$main_dir/res/layout"
+
+  logi "Activity added: $xml_template"
 }
 
 add_fragment(){
@@ -66,6 +72,8 @@ add_fragment(){
   local xml_template="$3"
   local main_dir="${module_dir%/java/*}"
   cp "$xml_template" "$main_dir/res/layout"
+
+  logi "Fragment added: $xml_template"
 }
 
 add_navigation(){
@@ -73,6 +81,8 @@ add_navigation(){
   local template="$2"
   mkdir -p "$main_dir/res/navigation"
   cp "$template" "$main_dir/res/navigation"
+
+  logi "Navigation added: $template"
 }
 
 add_resource() {
@@ -81,6 +91,8 @@ add_resource() {
   local sample_value="$3"
   cp "$template" "$values_file"
   sed -i "/<application/ a\    $sample_value" "$values_file"
+
+  logi "Resource created: $values_file"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -101,6 +113,8 @@ main() {
   add_resource "$MAIN_DIR/res/values/strings_messages.xml" "$RESOURCES_TEMPLATE" '<string name="msg_x">x</string>'
   add_resource "$MAIN_DIR/res/values/text_appearance.xml" "$RESOURCES_TEMPLATE" '<style name="" parent=""></style>'
   add_resource "$MAIN_DIR/res/values/dimens.xml" "$RESOURCES_TEMPLATE" '<dimen name="">16dp</dimen>'
+
+  logs "Initial app structure successfully created"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

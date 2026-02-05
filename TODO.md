@@ -1,3 +1,6 @@
+# Plan
+- droid-newapp: Reproduce what android studio does for you
+
 # In Development
 
 # Working
