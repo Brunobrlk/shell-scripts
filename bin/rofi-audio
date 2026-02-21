@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Depends on: https://github.com/adi1090x/rofi
+# Version: 1.0
+# Last Updated: 2025-12-19
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+# Import Rofi Theme
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  local choice=$(pactl -f json list sinks | jq -r '.[] | .description' | rofi_cmd)
+  local sink_name=$(pactl -f json list sinks | jq -r --arg sink_pretty_name "$choice" '.[] | select(.description == $sink_pretty_name) | .name')
+  pactl set-default-sink "$sink_name" && notify-send "Audio switched to: $choice"
+  [[ -z "$choice" ]] && exit 0
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
