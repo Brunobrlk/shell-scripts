@@ -44,11 +44,9 @@ main() {
   [[ -z "$operation" ]] && exit 0
 
   if [[ "$operation" == "Up" ]]; then
-    docker-compose -f ~/.utils/DockerContainers/${choice}.yml up -d
+    docker compose -p "$choice" -f ~/.utils/DockerContainers/${choice}.yml up -d
   elif [[ "$operation" == "Down" ]]; then
-    docker-compose -f ~/.utils/DockerContainers/${choice}.yml down
-  else
-    exit 0
+    docker compose -p "$choice" -f ~/.utils/DockerContainers/${choice}.yml down
   fi
 }
 
