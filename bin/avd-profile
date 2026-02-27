@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+AVD_NAME="$1"
+PROFILE="$2"
+
+AVD_DIR="${ANDROID_AVD_HOME:-$HOME/.android/avd}"
+CFG="$AVD_DIR/$AVD_NAME.avd/config.ini"
+
+[[ -f "$CFG" ]] || { echo "AVD not found"; exit 1; }
+
+ini_set() {
+  local file="$1" key="$2" value="$3"
+  if grep -qE "^${key}=" "$file"; then
+    sed -i "s|^${key}=.*|${key}=${value}|" "$file"
+  else
+    echo "${key}=${value}" >> "$file"
+  fi
+}
+
+case "$PROFILE" in
+  compact)
+    W=720  H=1600  DPI=320
+    ;;
+  standard)
+    W=1080 H=2400 DPI=400
+    ;;
+  large)
+    W=1440 H=3200 DPI=560
+    ;;
+  tablet)
+    W=1600 H=2560 DPI=320
+    ;;
+  *)
+    echo "Unknown profile"
+    exit 1
+    ;;
+esac
+
+ini_set "$CFG" hw.lcd.width "$W"
+ini_set "$CFG" hw.lcd.height "$H"
+ini_set "$CFG" hw.lcd.density "$DPI"
+
+ini_set "$CFG" hw.keyboard yes
+ini_set "$CFG" hw.mainKeys no
+ini_set "$CFG" hw.screen multi-touch
+
+ini_set "$CFG" hw.ramSize 4096
+ini_set "$CFG" vm.heapSize 256
+ini_set "$CFG" fastboot.forceColdBoot yes
+
+echo "Applied profile '$PROFILE' to $AVD_NAME"
