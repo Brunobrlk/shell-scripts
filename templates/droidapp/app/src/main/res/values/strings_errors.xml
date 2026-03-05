@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Remote errors -->
+    <string name="error_no_internet">No internet connection.</string>
+    <string name="error_request_timeout">Request timed out.</string>
+    <string name="error_bad_request">Bad request.</string>
+    <string name="error_not_found">Resource not found.</string>
+    <string name="error_not_acceptable">Request not acceptable.</string>
+    <string name="error_conflict">Conflict in request.</string>
+    <string name="error_payload_too_large">Payload too large.</string>
+    <string name="error_unsupported_media_type">Unsupported media type.</string>
+    <string name="error_too_many_requests">Too many requests.</string>
+    <string name="error_internal_server">Internal server error.</string>
+    <string name="error_bad_gateway">Bad gateway.</string>
+    <string name="error_service_unavailable">Service unavailable.</string>
+    <string name="error_gateway_timeout">Gateway timeout.</string>
+    <string name="error_ssl_handshake">SSL handshake failed.</string>
+    <string name="error_no_data">No data available.</string>
+    <string name="error_unknown">Unknown error.</string>
+    <string name="error_unauthorized">You are not authorized.</string>
+    <string name="error_forbidden">Access forbidden.</string>
+
+    <!-- Local errors -->
+    <string name="error_disk_full">Not enough storage space</string>
+    <string name="error_db_corrupted">Database corrupted</string>
+    <string name="error_cache_expired">Cache expired</string>
+
+</resources>

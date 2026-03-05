@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.App.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:maxLines">2</item>
+    </style>
+
+    <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge.Emphasized">
+        <item name="android:maxLines">2</item>
+    </style>
+
+    <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:maxLines">2</item>
+    </style>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FullScreenBottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="behavior_peekHeight">0dp</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+    </style>
+</resources>

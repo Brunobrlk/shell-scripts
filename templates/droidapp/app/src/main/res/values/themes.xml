@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.NbaApp.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.App.TitleLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.App.LabelMedium</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
+    </style>
+
+    <style name="Theme.NbaApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/md_theme_primary</item>
+        <item name="postSplashScreenTheme">@style/Theme.NbaApp.Light</item>
+    </style>
+</resources>

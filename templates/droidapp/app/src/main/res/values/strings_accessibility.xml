@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desc_enter">Enter</string>
+    <string name="desc_error_icon">Illustrative icon for error</string>
+    <string name="desc_close_error_warning">Close error warning</string>
+</resources>

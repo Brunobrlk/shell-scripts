@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- https://developer.android.com/identity/data/autobackup -->
+
+    <!-- ===== Cloud Backup (Google Drive) ===== -->
+    <cloud-backup>
+
+        <!-- SharedPreferences -->
+        <include
+            domain="sharedpref"
+            path="." />
+
+        <!-- Internal files -->
+        <include
+            domain="files"
+            path="." />
+
+        <!-- Databases -->
+        <include
+            domain="database"
+            path="." />
+
+        <!-- External app-specific files -->
+        <include
+            domain="external"
+            path="." />
+
+        <!-- Explicit default exclusions -->
+
+        <exclude
+            domain="cache"
+            path="." />
+
+        <exclude
+            domain="code_cache"
+            path="." />
+
+        <exclude
+            domain="no_backup"
+            path="." />
+
+    </cloud-backup>
+
+    <!-- ===== Device-to-device transfer ===== -->
+    <device-transfer>
+
+        <!-- Same defaults as cloud-backup -->
+
+        <include
+            domain="sharedpref"
+            path="." />
+
+        <include
+            domain="files"
+            path="." />
+
+        <include
+            domain="database"
+            path="." />
+
+        <include
+            domain="external"
+            path="." />
+
+        <exclude
+            domain="cache"
+            path="." />
+
+        <exclude
+            domain="code_cache"
+            path="." />
+
+        <exclude
+            domain="no_backup"
+            path="." />
+
+    </device-transfer>
+
+</data-extraction-rules>

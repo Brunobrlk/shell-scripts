@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="combined_msg_offline_mode">%1$s. Showing saved results</string>
+</resources>

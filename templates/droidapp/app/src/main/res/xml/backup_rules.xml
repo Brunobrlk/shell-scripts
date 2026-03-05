@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- https://developer.android.com/identity/data/autobackup -->
+
+    <!-- SharedPreferences -->
+    <include
+        domain="sharedpref"
+        path="." />
+
+    <!-- Internal files: getFilesDir(), getDir(...) -->
+    <include
+        domain="files"
+        path="." />
+
+    <!-- Databases: SQLite / Room -->
+    <include
+        domain="database"
+        path="." />
+
+    <!-- External app-specific files: getExternalFilesDir(...) -->
+    <include
+        domain="external"
+        path="." />
+
+    <!-- Explicit exclusions (already default, documented here intentionally) -->
+
+    <!-- Internal cache -->
+    <exclude
+        domain="cache"
+        path="." />
+
+    <!-- Code cache -->
+    <exclude
+        domain="code_cache"
+        path="." />
+
+    <!-- No-backup directory -->
+    <exclude
+        domain="no_backup"
+        path="." />
+
+</full-backup-content>
