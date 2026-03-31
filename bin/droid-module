@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description:
+# Version: 1.0
+
+# Notes - Wizard
+# PROJECT_NAME - MyApp
+# PKG_NAME - com.example.myapp
+# Save location - $HOME/Development/Mobile/Android/MyApp
+# Language - Kotlin
+# Minimum Sdk - API-26;Oreo;Android 8.0
+# BuildConfig Language - Kotlin DSL
+# Template - Empty Activity
+# Min Java Runtime - 17+
+# Supported Gradle Versions: 7.3-9.4(Default: 9.4[embedded-kotlin=2.3.0] - latest)
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────jj
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if script is executed (not sourced)
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

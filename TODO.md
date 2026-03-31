@@ -1,5 +1,6 @@
 # Plan
 - droid-newapp: Reproduce what android studio does for you
+- Fully Install with XDG-dirs
 
 # In Development
 
