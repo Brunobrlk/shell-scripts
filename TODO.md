@@ -1,6 +1,9 @@
 # Plan
 - droid-newapp: Reproduce what android studio does for you
 - Fully Install with XDG-dirs
+- rofi-cheatsheet: Render MD and open when clicked
+- rofi-clipboard: add static code gists
+- rofi-starred github repos list
 
 # In Development
 

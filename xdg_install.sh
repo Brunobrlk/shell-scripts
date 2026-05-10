@@ -1,45 +1,68 @@
 #!/usr/bin/env bash
-# Author: Bruno Guimarães
-# Description:
-# Version: 1.0
-# Last Updated: 2025-12-10
 
 set -euo pipefail
 IFS=$'\n\t'
 
-logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
-logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
-loge() { printf '\033[0;31m[BRLK ERROR]\033[0m - %s\n' "$1" >&2; }
+logi() { printf '\033[0;34m[INFO]\033[0m %s\n' "$1"; }
+logs() { printf '\033[0;32m[SUCCESS]\033[0m %s\n' "$1"; }
+loge() { printf '\033[0;31m[ERROR]\033[0m %s\n' "$1" >&2; }
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Constants / Config
 # ──────────────────────────────────────────────────────────────────────────────
+readonly APP_NAME="shell-scripts"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BIN_DIR="$HOME/.local/bin"
+
+readonly CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$APP_NAME"
+readonly DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/$APP_NAME"
+readonly CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/$APP_NAME"
+readonly STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/$APP_NAME"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
 # ──────────────────────────────────────────────────────────────────────────────
-install_to_dir() {
-  local target_dir="$1"
-  mkdir -p "$target_dir"
+create_xdg_dirs() {
+    mkdir -p \
+        "$CONFIG_DIR" \
+        "$DATA_DIR" \
+        "$CACHE_DIR" \
+        "$STATE_DIR"
+}
 
-  echo "Installing scripts into $target_dir"
-  for script in "$SCRIPT_DIR/bin"/*; do
-    local name="$(basename "$script")"
-    if ln -sf "$script" "$target_dir/$name" && chmod +x "$target_dir/$name"; then
-      logi "Script installed: $name"
-    else
-      loge "Failed to install: $name" >&2
+install_scripts() {
+    mkdir -p "$BIN_DIR"
+    for script in "$SCRIPT_DIR/bin"/*; do
+        local name
+        name="$(basename "$script")"
+
+        ln -sf "$script" "$BIN_DIR/$name"
+        chmod +x "$script"
+
+        logi "Installed: $name"
+    done
+}
+
+install_default_config() {
+    local config_file="$CONFIG_DIR/config.sh"
+
+    if [[ ! -f "$config_file" ]]; then
+        cat >"$config_file" <<'EOF'
+# add config here
+
+EOF
+
+        logi "Created default config"
     fi
-  done
-  logs "Finish installation"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
 main() {
-  install_to_dir "$HOME/.local/bin"
+    install_scripts
+
+    logs "Installation completed"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

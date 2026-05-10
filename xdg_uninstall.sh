@@ -1,42 +1,42 @@
 #!/usr/bin/env bash
-# Author: Bruno Guimarães
-# Description: Delete internal scripts installed on specific folders
-# Version: 1.0
-# Last Updated: 2025-12-09
 
 set -euo pipefail
 IFS=$'\n\t'
 
-logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
-logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
+logi() { printf '\033[0;34m[INFO]\033[0m %s\n' "$1"; }
+logs() { printf '\033[0;32m[SUCCESS]\033[0m %s\n' "$1"; }
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Constants / Config
+# ──────────────────────────────────────────────────────────────────────────────
+readonly APP_NAME="shell-scripts"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BIN_DIR="$HOME/.local/bin"
+readonly PROJECT_BIN_DIR="$(readlink -f "$SCRIPT_DIR/bin")"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
 # ──────────────────────────────────────────────────────────────────────────────
-delete_scripts_in_dir(){
-  local target_dir="$1"
+remove_symlinks() {
+  for file in "$BIN_DIR"/*; do
+    [[ -L "$file" ]] || continue
 
-  if [[ ! -d "$target_dir" ]]; then
-    echo "Directory not found: $target_dir" >&2
-    return 1  
-  fi
+    local target
+    target="$(readlink -f "$file")"
 
-  for file in "$target_dir"/*; do
-    local resolved_file="$(readlink "$file")"
-
-    if [[ "$resolved_file" == *"/shell-scripts/bin/"* ]]; then
-      rm "$file" || echo "Failed to delete: $file" >&2
-      logi "Script deleted: $(basename "$file")"
+    if [[ "$target" == "$PROJECT_BIN_DIR/"* ]]; then
+      rm "$file"
+      logi "Removed: $(basename "$file")"
     fi
   done
-  logs "Finish deleting"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
 main() {
-  delete_scripts_in_dir "$HOME/.local/bin"
+  remove_symlinks
+  logs "Uninstall completed"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────

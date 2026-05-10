@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Description: Update KDE UI
+
+set -euo pipefail
+
+echo "==> Killing Plasma shell..."
+kquitapp6 plasmashell || true
+
+echo "==> Clearing caches..."
+rm -rf ~/.cache/ksycoca6_*
+rm -rf ~/.cache/icon-cache.kcache
+rm -rf ~/.cache/plasma*
+
+echo "==> Updating desktop database..."
+update-desktop-database ~/.local/share/applications || true
+
+echo "==> Rebuilding KDE cache..."
+kbuildsycoca6 --noincremental
+
+echo "==> Restarting Plasma..."
+kstart plasmashell >/dev/null 2>&1 & disown
+
+echo "==> Done"
