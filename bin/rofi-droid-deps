@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Author: Bruno Guimarães
 # Description:
+# Metadata:
+# - Target: Android projects using AGP 9+ built-in Kotlin
+# - Default codegen: KSP
+# - Legacy fallback: com.android.legacy-kapt
 # Version: 1.0
-# Last Updated: 2026-06-15
+# Last Updated: 2026-06-16
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -24,47 +28,46 @@ readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." &
 source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
 # Ordered feature list for the rofi menu.
-# Format: "FeatureKey|Visible Label"
-readonly FEATURE_ITEMS=(
-  "AppStartup|🚀 AppStartup"
-  "Coroutines|🌀 Coroutines"
-  "Glide|🖼️ Glide"
-  "RetrofitGsonConverter|📝 RetrofitGsonConverter"
-  "Hilt|🛡️ Hilt"
-  "Kapt|🧩 Kapt"
-  "Ksp|🔧 Ksp"
-  "LoggingInterceptor|📡 LoggingInterceptor"
-  "Navigation|🧭 Navigation"
-  "Retrofit|🔁 Retrofit"
-  "Room|🗄️ Room"
-  "Splash|🌅 Splash"
-  "Timber|🌲 Timber"
-  "GoogleServices|🟢 GoogleServices"
-  "Datastore|💾 Datastore"
-  "WorkManager|🔁 WorkManager"
-  "Paging|🪄 Paging"
-  "LifecycleProcess|🧰 LifecycleProcess"
-  "ConstraintLayout|🎨 ConstraintLayout"
-  "LiveData|📦 LiveData"
-  "KotlinxSerialization|🧬 KotlinxSerialization"
-  "NavigationSafeArgs|🧭 NavigationSafeArgs"
-  "FirebaseBom|🔥 FirebaseBom"
-  "FirebaseAnalytics|🔥 FirebaseAnalytics"
-  "FirebaseCrashlytics|🔥 FirebaseCrashlytics"
-  "FirebaseRemoteConfig|🔥 FirebaseRemoteConfig"
-  "FirebasePerformance|🔥 FirebasePerformance"
-  "FirebaseMessaging|🔥 FirebaseMessaging"
-  "FirebaseAuth|🔥 FirebaseAuth"
-  "FirebaseFirestore|🔥 FirebaseFirestore"
-  "FirebaseStorage|🔥 FirebaseStorage"
-  "FirebaseDatabase|🔥 FirebaseDatabase"
-  "Koin|☕ Koin"
-  "OkHttp|📡 OkHttp"
-  "RetrofitMoshiConverter|💨 RetrofitMoshiConverter"
-  "Ktor|⚡ Ktor"
-  "Coil|🌀 Coil"
-  "Lottie|🧊 Lottie"
-  "LeakCanary|🐛 LeakCanary"
+readonly MENU_ITEMS=(
+  "🚀 AppStartup"
+  "🌀 Coroutines"
+  "🖼️ Glide"
+  "📝 RetrofitGsonConverter"
+  "🛡️ Hilt"
+  "🧩 LegacyKapt"
+  "🔧 Ksp"
+  "📡 LoggingInterceptor"
+  "🧭 Navigation"
+  "🔁 Retrofit"
+  "🗄️ Room"
+  "🌅 Splash"
+  "🌲 Timber"
+  "🟢 GoogleServices"
+  "💾 Datastore"
+  "🔁 WorkManager"
+  "🪄 Paging"
+  "🧰 LifecycleProcess"
+  "🎨 ConstraintLayout"
+  "📦 LiveData"
+  "🧬 KotlinxSerialization"
+  "🧭 NavigationSafeArgs"
+  "🔥 FirebaseBom"
+  "🔥 FirebaseAnalytics"
+  "🔥 FirebaseCrashlytics"
+  "🔥 FirebaseRemoteConfig"
+  "🔥 FirebasePerformance"
+  "🔥 FirebaseMessaging"
+  "🔥 FirebaseAuth"
+  "🔥 FirebaseFirestore"
+  "🔥 FirebaseStorage"
+  "🔥 FirebaseDatabase"
+  "☕ Koin"
+  "📡 OkHttp"
+  "💨 RetrofitMoshiConverter"
+  "⚡ Ktor"
+  "🌀 Coil"
+  "🧊 Lottie"
+  "🐛 LeakCanary"
 )
 
 # Simple prerequisite table. Each feature automatically applies the features it
@@ -72,6 +75,7 @@ readonly FEATURE_ITEMS=(
 declare -Ar FEATURE_REQUIRES=(
   [RetrofitGsonConverter]="Retrofit"
   [RetrofitMoshiConverter]="Retrofit"
+  [Hilt]="Ksp"
   [Room]="Ksp"
   [WorkManager]="Hilt"
   [Paging]="Room"
@@ -90,7 +94,7 @@ declare -Ar FEATURE_VERSIONS=(
   [AppStartup]=$'startupRuntime = "1.2.0"'
   [Coroutines]=$'kotlinxCoroutinesAndroid = "1.10.2"'
   [Glide]=$'glideVersion = "4.15.1"'
-  [Hilt]=$'hiltAndroid = "2.57.2"'
+  [Hilt]=$'hiltAndroid = "2.59.2"'
   [Ksp]=$'kspVersion = "2.1.21-2.0.2"'
   [LoggingInterceptor]=$'loggingInterceptor = "5.2.1"'
   [Navigation]=$'navigationFragmentKtx = "2.9.5"\nnavigationUiKtx = "2.9.5"'
@@ -156,8 +160,8 @@ declare -Ar FEATURE_LIBRARIES=(
 )
 
 declare -Ar FEATURE_CATALOG_PLUGINS=(
-  [Hilt]=$'googleDaggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }\norg-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }'
-  [Kapt]=$'org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }'
+  [Hilt]=$'googleDaggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }'
+  [LegacyKapt]=$'android-legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }'
   [Ksp]=$'ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }'
   [GoogleServices]=$'google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }'
   [FirebaseCrashlytics]=$'crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }'
@@ -166,8 +170,8 @@ declare -Ar FEATURE_CATALOG_PLUGINS=(
 )
 
 declare -Ar FEATURE_BUILD_PLUGINS=(
-  [Hilt]=$'alias(libs.plugins.org.jetbrains.kotlin.kapt)\nalias(libs.plugins.googleDaggerHilt)'
-  [Kapt]=$'alias(libs.plugins.org.jetbrains.kotlin.kapt)'
+  [Hilt]=$'alias(libs.plugins.googleDaggerHilt)'
+  [LegacyKapt]=$'alias(libs.plugins.android.legacy.kapt)'
   [Ksp]=$'alias(libs.plugins.ksp)'
   [GoogleServices]=$'alias(libs.plugins.google.services)'
   [FirebaseCrashlytics]=$'alias(libs.plugins.crashlytics)'
@@ -180,7 +184,7 @@ declare -Ar FEATURE_DEPENDENCIES=(
   [Coroutines]=$'implementation(libs.kotlinx.coroutines.android)\nimplementation(libs.kotlinx.coroutines.core)'
   [Glide]=$'implementation(libs.glide)\nannotationProcessor(libs.glide.compiler)'
   [RetrofitGsonConverter]=$'implementation(libs.gson)'
-  [Hilt]=$'// Dagger Hilt\nimplementation(libs.hilt.android)\nkapt(libs.hilt.android.compiler)'
+  [Hilt]=$'// Dagger Hilt\nimplementation(libs.hilt.android)\nksp(libs.hilt.android.compiler)'
   [LoggingInterceptor]=$'// Network logs\nimplementation(libs.logging.interceptor)'
   [Navigation]=$'implementation(libs.androidx.navigation.fragment.ktx)\nimplementation(libs.androidx.navigation.ui.ktx)'
   [Retrofit]=$'implementation(libs.retrofit)'
@@ -188,7 +192,7 @@ declare -Ar FEATURE_DEPENDENCIES=(
   [Splash]=$'// SplashScreen Native API\nimplementation(libs.androidx.core.splashscreen)'
   [Timber]=$'implementation(libs.timber)'
   [Datastore]=$'implementation(libs.androidx.datastore.preferences)'
-  [WorkManager]=$'implementation(libs.androidx.work.runtime.ktx)\nimplementation(libs.androidx.hilt.work)\nkapt(libs.androidx.hilt.compiler)'
+  [WorkManager]=$'implementation(libs.androidx.work.runtime.ktx)\nimplementation(libs.androidx.hilt.work)\nksp(libs.androidx.hilt.compiler)'
   [Koin]=$'implementation(libs.koin.android)'
   [OkHttp]=$'implementation(libs.okhttp)'
   [RetrofitMoshiConverter]=$'implementation(libs.converter.moshi)'
@@ -331,22 +335,12 @@ apply_feature() {
   apply_lines add_dependency "$APP_BUILD" "${FEATURE_DEPENDENCIES[$feature]:-}"
 }
 
-feature_key() {
-  local item="$1"
-  printf '%s\n' "${item%%|*}"
-}
-
-feature_label() {
-  local item="$1"
-  printf '%s\n' "${item#*|}"
-}
-
 feature_exists() {
   local wanted="$1"
   local item
 
-  for item in "${FEATURE_ITEMS[@]}"; do
-    [[ "$(feature_key "$item")" == "$wanted" ]] && return 0
+  for item in "${MENU_ITEMS[@]}"; do
+    [[ "${item#* }" == "$wanted" ]] && return 0
   done
 
   return 1
@@ -366,23 +360,9 @@ apply_root_plugins() {
 
 build_menu() {
   local item
-  for item in "${FEATURE_ITEMS[@]}"; do
-    feature_label "$item"
+  for item in "${MENU_ITEMS[@]}"; do
+    printf '%s\n' "$item"
   done
-}
-
-feature_from_label() {
-  local label="$1"
-  local item
-
-  for item in "${FEATURE_ITEMS[@]}"; do
-    if [[ "$(feature_label "$item")" == "$label" ]]; then
-      feature_key "$item"
-      return 0
-    fi
-  done
-
-  return 1
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -397,7 +377,7 @@ main() {
   choice="$(build_menu | rofi_cmd)"
   [[ -z "$choice" ]] && exit 0
 
-  feature="$(feature_from_label "$choice")"
+  feature="${choice#* }"
   apply_feature "$feature"
 }
 
