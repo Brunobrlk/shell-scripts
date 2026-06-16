@@ -49,6 +49,7 @@ readonly LIB_CHOICES=(
   "🧰 LifecycleProcess"
   "🎨 ConstraintLayout"
   "📦 LiveData"
+  "🧬 KotlinxSerialization"
   "🧭 NavigationSafeArgs"
   "🔥 FirebaseBom"
   "🔥 FirebaseAnalytics"
@@ -363,6 +364,14 @@ main() {
     append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'lifecycleLivedataKtx = "2.9.4"'
     append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }'
     add_dependency "$APP_BUILD" 'implementation(libs.androidx.lifecycle.livedata.ktx)'
+    ;;
+  "KotlinxSerialization")
+    append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'kotlinxSerializationJson = "1.9.0"'
+    append_after "$LIBS_FILE" "$LIBS_SECTION_PATTERN" 'kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }'
+    append_after "$LIBS_FILE" "$PLUGINS_SECTION_PATTERN" 'org-jetbrains-kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }'
+    add_plugin "$ROOT_BUILD" 'alias(libs.plugins.org.jetbrains.kotlin.plugin.serialization) apply false'
+    add_plugin "$APP_BUILD" 'alias(libs.plugins.org.jetbrains.kotlin.plugin.serialization)'
+    add_dependency "$APP_BUILD" 'implementation(libs.kotlinx.serialization.json)'
     ;;
   "NavigationSafeArgs")
     append_after "$LIBS_FILE" "$VERSIONS_SECTION_PATTERN" 'navigationSafeArgs = "2.9.5"'
