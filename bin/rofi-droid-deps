@@ -38,6 +38,7 @@ readonly MENU_ITEMS=(
   "🔧 Ksp"
   "📡 LoggingInterceptor"
   "🧭 Navigation"
+  "🧭 ComposeNavigation3"
   "🔁 Retrofit"
   "🗄️ Room"
   "🌅 Splash"
@@ -77,6 +78,7 @@ declare -Ar FEATURE_REQUIRES=(
   [RetrofitMoshiConverter]="Retrofit"
   [Hilt]="Ksp"
   [Room]="Ksp"
+  [ComposeNavigation3]="KotlinxSerialization"
   [WorkManager]="Hilt"
   [Paging]="Room"
   [FirebaseAnalytics]=$'FirebaseBom\nGoogleServices'
@@ -98,6 +100,7 @@ declare -Ar FEATURE_VERSIONS=(
   [Ksp]=$'kspVersion = "2.1.21-2.0.2"'
   [LoggingInterceptor]=$'loggingInterceptor = "5.2.1"'
   [Navigation]=$'navigationFragmentKtx = "2.9.5"\nnavigationUiKtx = "2.9.5"'
+  [ComposeNavigation3]=$'navigation3 = "1.0.1"\nlifecycleViewmodelNavigation3 = "2.10.0"'
   [Retrofit]=$'retrofit = "2.9.0"'
   [Room]=$'room = "2.8.3"'
   [Splash]=$'coreSplashscreen = "1.0.1"'
@@ -129,6 +132,7 @@ declare -Ar FEATURE_LIBRARIES=(
   [Hilt]=$'hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }\nhilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }'
   [LoggingInterceptor]=$'logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }'
   [Navigation]=$'androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }\nandroidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }'
+  [ComposeNavigation3]=$'androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }\nandroidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }\nandroidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNavigation3" }'
   [Retrofit]=$'retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }'
   [Room]=$'androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }\nandroidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }\nandroidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }'
   [Splash]=$'androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }'
@@ -187,6 +191,7 @@ declare -Ar FEATURE_DEPENDENCIES=(
   [Hilt]=$'// Dagger Hilt\nimplementation(libs.hilt.android)\nksp(libs.hilt.android.compiler)'
   [LoggingInterceptor]=$'// Network logs\nimplementation(libs.logging.interceptor)'
   [Navigation]=$'implementation(libs.androidx.navigation.fragment.ktx)\nimplementation(libs.androidx.navigation.ui.ktx)'
+  [ComposeNavigation3]=$'implementation(libs.androidx.navigation3.runtime)\nimplementation(libs.androidx.navigation3.ui)\nimplementation(libs.androidx.lifecycle.viewmodel.navigation3)'
   [Retrofit]=$'implementation(libs.retrofit)'
   [Room]=$'// Room Database\nimplementation(libs.androidx.room.ktx)\nksp(libs.androidx.room.compiler)'
   [Splash]=$'// SplashScreen Native API\nimplementation(libs.androidx.core.splashscreen)'
