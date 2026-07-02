@@ -27,7 +27,9 @@ xdg_init() {
 }
 
 load_config() {
-  local config="$APP_CONFIG_DIR/config.sh"
+  local config="$APP_CONFIG_DIR/config"
 
-  [[ -f "$config" ]] && source "$config"
+  if [[ -f "$config" ]]; then
+    source "$config"
+  fi
 }

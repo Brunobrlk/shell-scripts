@@ -12,25 +12,34 @@ IFS=$'\n\t'
 # ──────────────────────────────────────────────────────────────────────────────
 # Import Rofi Theme
 readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/xdg.sh"
 source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
-readonly NOTES_DIR="$HOME/.utils/Notes"
+xdg_init
+load_config
+
+readonly NOTES_DIR="${ROFI_NOTE_DIR:-$APP_DATA_DIR/notes}"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
 # ──────────────────────────────────────────────────────────────────────────────
-open_on_lvim() {
+open_on_nvim() {
   local file_path="$1"
-  alacritty -o 'window.startup_mode="Fullscreen"' -e bash -lic "lvim '$file_path'"
+  alacritty -o 'window.startup_mode="Fullscreen"' -e bash -lic "nvim '$file_path'"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
 main() {
-  local choice=$(ls ~/.utils/Notes | rofi_cmd)
+  mkdir -p "$NOTES_DIR"
+
+  local choice
+  choice=$(
+    find "$NOTES_DIR" -maxdepth 1 -mindepth 1 -type f -printf '%f\n' | sort | rofi_cmd
+  )
   [[ -z "$choice" ]] && exit 0
-  open_on_lvim "$NOTES_DIR/$choice"
+  open_on_nvim "$NOTES_DIR/$choice"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
