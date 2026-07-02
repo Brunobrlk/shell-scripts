@@ -14,12 +14,19 @@ source "$SCRIPT_DIR/lib/rofi-file-picker.sh"
 readonly VAULT_DIR="$HOME/Documents/Vault"
 
 main() {
+  local choice
+
   if [[ ! -d "$VAULT_DIR" ]]; then
     printf 'Vault directory not found: %s\n' "$VAULT_DIR" >&2
     exit 1
   fi
 
-  pick_and_open_file "$VAULT_DIR" recursive_markdown
+  choice="$(
+    list_files_recursive_markdown_excluding "$VAULT_DIR" ".library" | rofi_cmd || true
+  )"
+  [[ -z "$choice" ]] && exit 0
+
+  open_in_nvim "$VAULT_DIR/$choice"
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

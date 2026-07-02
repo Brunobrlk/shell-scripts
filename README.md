@@ -33,10 +33,12 @@ This will symlink all scripts in `bin/` to `~/.local/bin/`.
 - `rofi-droid-perms`: Add boilerplate code for adding permissions to apps
 - `rofi-launcher`: Default customized rofi launcher for system menu
 - `rofi-mpd`: MPD controller(Play/Pause, Stop, Next, Prev)
-- `rofi-notes`: Quickly open notes stored in `XDG_DATA_HOME/shell-scripts/notes` by default and edit them in `nvim`
+- `rofi-code-gists`: Search `XDG_DATA_HOME/shell-scripts/code-gists` by default, copy an existing gist to the clipboard, or create a new one in `nvim`
+- `rofi-notes`: Quickly open files from `XDG_DATA_HOME/shell-scripts/quick-notes` by default in `nvim`
+- `rofi-prompts`: Search `XDG_DATA_HOME/shell-scripts/prompts` by default, copy an existing prompt to the clipboard, or create a new one in `nvim`
+- `rofi-vault`: Recursively search markdown files under `~/Documents/Vault` excluding `.library`, and open them in `nvim`
 - `rofi-powermenu`: Powermenu selector(Shutdown, Suspend, Logout...)
 - `rofi-virtmanager`: Lists available virtual machines to launch
-- `rofi-vault`: Recursively search markdown files under `~/Documents/Vault` and open them in `nvim`
 - `vmsfolder`: Create a shared folder between linux host/guest virtual machines
 
 ## Uninstall
@@ -49,12 +51,12 @@ Removes all symlinks created during installation.
 
 ## Configuration
 
-Scripts can load shell-style key-value config files from:
+Scripts can load shell-style key-value config from `~/.config/shell-scripts/config`.
 
-- `~/.config/shell-scripts/config`
-
-Example override for `rofi-notes`:
+Example overrides to keep the current Vault-backed behavior:
 
 ```bash
-ROFI_NOTES_DIR="$HOME/Documents/notes"
+PROMPT_LIBRARY_DIR="$HOME/Documents/Vault/.library/prompts"
+CODE_GISTS_DIR="$HOME/Documents/Vault/.library/code-gists"
+NOTES_DIR="$HOME/Documents/Vault/.library/quick-notes"
 ```

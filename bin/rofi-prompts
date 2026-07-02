@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Author: Bruno Guimarães
-# Description: Open quick notes in nvim through rofi
+# Description: Copy prompt files to the clipboard or create a new one in nvim
 # Version: 1.0
 # Last Updated: 2026-07-02
 
@@ -15,11 +15,10 @@ source "$SCRIPT_DIR/lib/rofi-file-picker.sh"
 xdg_init
 load_config
 
-readonly NOTES_DIR="${NOTES_DIR:-$APP_DATA_DIR/quick-notes}"
+readonly PROMPTS_DIR="${PROMPT_LIBRARY_DIR:-$APP_DATA_DIR/prompts}"
 
 main() {
-  mkdir -p "$NOTES_DIR"
-  pick_and_open_file "$NOTES_DIR" flat
+  pick_copy_or_create_markdown_file "$PROMPTS_DIR"
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
