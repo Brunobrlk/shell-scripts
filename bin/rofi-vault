@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Search markdown files in the Vault and open them in nvim
+# Version: 1.0
+# Last Updated: 2026-07-02
+
+set -euo pipefail
+IFS=$'\n\t'
+
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
+source "$SCRIPT_DIR/lib/rofi-file-picker.sh"
+
+readonly VAULT_DIR="$HOME/Documents/Vault"
+
+main() {
+  if [[ ! -d "$VAULT_DIR" ]]; then
+    printf 'Vault directory not found: %s\n' "$VAULT_DIR" >&2
+    exit 1
+  fi
+
+  pick_and_open_file "$VAULT_DIR" recursive_markdown
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

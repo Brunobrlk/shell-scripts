@@ -33,9 +33,10 @@ This will symlink all scripts in `bin/` to `~/.local/bin/`.
 - `rofi-droid-perms`: Add boilerplate code for adding permissions to apps
 - `rofi-launcher`: Default customized rofi launcher for system menu
 - `rofi-mpd`: MPD controller(Play/Pause, Stop, Next, Prev)
-- `rofi-note`: Quickly open notes stored in `XDG_DATA_HOME/shell-scripts/notes` by default and edit them in `nvim`
+- `rofi-notes`: Quickly open notes stored in `XDG_DATA_HOME/shell-scripts/notes` by default and edit them in `nvim`
 - `rofi-powermenu`: Powermenu selector(Shutdown, Suspend, Logout...)
 - `rofi-virtmanager`: Lists available virtual machines to launch
+- `rofi-vault`: Recursively search markdown files under `~/Documents/Vault` and open them in `nvim`
 - `vmsfolder`: Create a shared folder between linux host/guest virtual machines
 
 ## Uninstall
@@ -52,8 +53,8 @@ Scripts can load shell-style key-value config files from:
 
 - `~/.config/shell-scripts/config`
 
-Example override for `rofi-note`:
+Example override for `rofi-notes`:
 
 ```bash
-ROFI_NOTE_DIR="$HOME/Documents/notes"
+ROFI_NOTES_DIR="$HOME/Documents/notes"
 ```

@@ -44,7 +44,7 @@ install_scripts() {
 }
 
 install_default_config() {
-    local config_file="$CONFIG_DIR/config.sh"
+    local config_file="$CONFIG_DIR/config"
 
     if [[ ! -f "$config_file" ]]; then
         cat >"$config_file" <<'EOF'
@@ -60,7 +60,9 @@ EOF
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
 main() {
+    create_xdg_dirs
     install_scripts
+    install_default_config
 
     logs "Installation completed"
 }
