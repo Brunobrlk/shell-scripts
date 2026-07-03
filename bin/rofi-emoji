@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Pick an emoji with rofimoji using the shared rofi theme
+# Version: 1.0
+# Last Updated: 2026-07-02
+
+set -euo pipefail
+IFS=$'\n\t'
+
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
+
+main() {
+  if ! command -v rofimoji >/dev/null 2>&1; then
+    printf 'rofimoji is not installed.\n' >&2
+    exit 1
+  fi
+
+  local selector_args
+  selector_args="-theme-str 'listview {columns: $ROFI_MENU_COL; lines: $ROFI_MENU_ROW;}'"
+  selector_args+=" -theme-str 'textbox-prompt-colon {str: \"\";}'"
+  selector_args+=" -theme-str 'element-text {font: \"$ROFI_FONT\";}'"
+  selector_args+=" -theme '$ROFI_THEME'"
+
+  rofimoji \
+    --selector rofi \
+    --action copy \
+    --selector-args "$selector_args"
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

@@ -31,6 +31,7 @@ This will symlink all scripts in `bin/` to `~/.local/bin/`.
 - `rofi-docker`: Lists available containers to launch
 - `rofi-droid-deps`: Add dependencies to apps via gradle(versions.toml)
 - `rofi-droid-perms`: Add boilerplate code for adding permissions to apps
+- `rofi-emoji`: Pick and copy an emoji with `rofimoji` using the shared rofi theme
 - `rofi-launcher`: Default customized rofi launcher for system menu
 - `rofi-mpd`: MPD controller(Play/Pause, Stop, Next, Prev)
 - `rofi-code-gists`: Search `XDG_DATA_HOME/shell-scripts/code-gists` by default, copy an existing gist to the clipboard, or create a new one in `nvim`
