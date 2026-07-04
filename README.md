@@ -37,6 +37,7 @@ This will symlink all scripts in `bin/` to `~/.local/bin/`.
 - `rofi-code-gists`: Search `XDG_DATA_HOME/shell-scripts/code-gists` by default, copy an existing gist to the clipboard, or create a new one in `nvim`
 - `rofi-notes`: Quickly open files from `XDG_DATA_HOME/shell-scripts/quick-notes` by default in `nvim`
 - `rofi-prompts`: Search `XDG_DATA_HOME/shell-scripts/prompts` by default, copy an existing prompt to the clipboard, or create a new one in `nvim`
+- `rofi-shortcuts`: Search `XDG_DATA_HOME/shell-scripts/shortcuts` by default, open an existing shortcut in `nvim`, or create a new one
 - `rofi-vault`: Recursively search markdown files under `~/Documents/Vault` excluding `.library`, and open them in `nvim`
 - `rofi-powermenu`: Powermenu selector(Shutdown, Suspend, Logout...)
 - `rofi-virtmanager`: Lists available virtual machines to launch
@@ -60,4 +61,5 @@ Example overrides to keep the current Vault-backed behavior:
 PROMPT_LIBRARY_DIR="$HOME/Documents/Vault/.library/prompts"
 CODE_GISTS_DIR="$HOME/Documents/Vault/.library/code-gists"
 NOTES_DIR="$HOME/Documents/Vault/.library/quick-notes"
+SHORTCUTS_DIR="$HOME/Documents/Vault/.library/shortcuts"
 ```

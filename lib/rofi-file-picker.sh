@@ -133,6 +133,22 @@ pick_copy_or_create_markdown_file() {
   open_in_nvim "$file_path"
 }
 
+pick_open_or_create_markdown_file() {
+  local root_dir="$1"
+  local choice
+  local file_path
+
+  mkdir -p "$root_dir"
+
+  choice="$(
+    list_markdown_files_flat "$root_dir" | rofi_cmd || true
+  )"
+  [[ -z "$choice" ]] && return 0
+
+  file_path="$(resolve_markdown_file "$root_dir" "$choice")"
+  open_in_nvim "$file_path"
+}
+
 pick_and_open_file() {
   local root_dir="$1"
   local list_mode="$2"

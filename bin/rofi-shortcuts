@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Preview shortcut files in kdialog or create a new one through rofi
+# Version: 1.0
+# Last Updated: 2026-07-04
+
+set -euo pipefail
+IFS=$'\n\t'
+
+readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+source "$SCRIPT_DIR/lib/xdg.sh"
+source "$SCRIPT_DIR/lib/rofi-theme.sh"
+source "$SCRIPT_DIR/lib/rofi-file-picker.sh"
+
+xdg_init
+load_config
+
+readonly SHORTCUTS_DIR="${SHORTCUTS_DIR:-$APP_DATA_DIR/shortcuts}"
+
+open_in_nvim() {
+  local file_path="$1"
+  alacritty -o 'window.startup_mode="Fullscreen"' -e bash -lic "nvim '$file_path'"
+}
+
+preview_in_kdialog() {
+  local file_path="$1"
+
+  kdialog --title "Shortcut" --textbox "$file_path" 900 600
+}
+
+main() {
+  local choice
+  local file_path
+
+  mkdir -p "$SHORTCUTS_DIR"
+
+  choice="$(
+    list_markdown_files_flat "$SHORTCUTS_DIR" | rofi_cmd || true
+  )"
+  [[ -z "$choice" ]] && return 0
+
+  file_path="$(resolve_markdown_file "$SHORTCUTS_DIR" "$choice")"
+
+  if [[ ! -f "$file_path" ]]; then
+    open_in_nvim "$file_path"
+    return 0
+  fi
+
+  preview_in_kdialog "$file_path"
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
