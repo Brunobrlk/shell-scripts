@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Author: Bruno Guimarães
+# Description: Builds and runs a single C++ source file
+# Version: 1.0
+# Last Updated: 2026-07-27
+
+set -euo pipefail
+IFS=$'\n\t'
+
+logi() { printf '\033[0;34m[BRLK INFO]\033[0m - %s\n' "$1"; }
+logs() { printf '\033[0;32m[BRLK SUCCESS]\033[0m - %s\n' "$1"; }
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Functions
+# ──────────────────────────────────────────────────────────────────────────────
+ensure_args() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") <source_file.cpp>" >&2
+    return 1
+  fi
+
+  if [ ! -f "$1" ]; then
+    echo "Error: File not found: $1" >&2
+    return 1
+  fi
+}
+
+build_and_execute() {
+  local file="$1"
+  local base_name
+  local output_name
+
+  base_name="$(basename "$file")"
+  output_name="${base_name%.*}"
+
+  logi "Compiling program..."
+
+  "${CXX:-c++}" \
+    -std=c++20 \
+    -Wall \
+    -Wextra \
+    -Wpedantic \
+    -o "$output_name" \
+    "$file"
+
+  logs "Compilation completed."
+
+  logi "Launching program..."
+  "./$output_name"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────────────────────────────────────
+main() {
+  ensure_args "$@" || exit 1
+  build_and_execute "$1"
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry Point
+# ──────────────────────────────────────────────────────────────────────────────
+# Only run main if the script is executed, not sourced.
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
