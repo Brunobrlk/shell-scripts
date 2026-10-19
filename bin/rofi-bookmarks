@@ -62,6 +62,9 @@ declare -A MENU=(
   [" Github Search Code"]="https://github.com/search?q=language%3Akotlin+&type=code"
 
   ["󰗃 Youtube History"]="https://www.youtube.com/feed/history"
+
+  ["󰜏 Docs Jinja2"]="https://jinja.palletsprojects.com/en/stable/templates/"
+  ["󰜏 Docs Cookiecutter"]="https://cookiecutter.readthedocs.io/en/latest/index.html"
 )
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -14,14 +14,14 @@ IFS=$'\n\t'
 readonly SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 source "$SCRIPT_DIR/lib/rofi-theme.sh"
 
-readonly CHEATSHEET_DIR="$HOME/.utils/Cheatsheets"
+readonly CHEATSHEET_DIR="$HOME/Documents/Vault/.library/Cheatsheets"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Functions
 # ──────────────────────────────────────────────────────────────────────────────
-open_on_lvim() {
+open_on_editor() {
   local file_path="$1"
-  alacritty -o 'window.startup_mode="Fullscreen"' -e bash -lic "lvim '$file_path'"
+  alacritty -o 'window.startup_mode="Fullscreen"' -e bash -lic "$EDITOR --clean '$file_path'"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -30,7 +30,7 @@ open_on_lvim() {
 main() {
   local choice=$(ls "$CHEATSHEET_DIR" | rofi_cmd)
   [[ -z "$choice" ]] && exit 0
-  open_on_lvim "$CHEATSHEET_DIR/$choice"
+  open_on_editor "$CHEATSHEET_DIR/$choice"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
